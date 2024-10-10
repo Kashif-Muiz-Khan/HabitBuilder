@@ -1,9 +1,9 @@
-using HabitBuilder.Components;
-using HabitBuilder.Components.Account;
-using HabitBuilder.Context;
-using HabitBuilder.Model;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using HabitBuilder.Components.Account;
+using HabitBuilder.Components;
+using HabitBuilder.Context;
+using HabitBuilder.Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,13 +23,33 @@ builder.Services.AddAuthentication(options =>
 })
 .AddIdentityCookies();
 
+
+
+
+
 builder.Services.AddDbContext<DatabaseContext>();
+builder.Services.AddScoped<DatabaseSeeder>();
+
+
+
+
+
+
 
 builder.Services.AddIdentityCore<User>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<DatabaseContext>()
     .AddSignInManager();
 
+builder.Services.AddLocalization();
+
 var app = builder.Build();
+
+
+
+using var scope = app.Services.CreateScope();
+var seeder = scope.ServiceProvider.GetService<DatabaseSeeder>();
+await seeder!.Seed();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
