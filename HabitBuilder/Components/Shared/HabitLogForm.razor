@@ -1,4 +1,4 @@
-﻿@* ﻿@using System.ComponentModel.DataAnnotations
+﻿@using System.ComponentModel.DataAnnotations
 @using HabitBuilder.Context
 @using HabitBuilder.Model
 @using Microsoft.AspNetCore.Components.Authorization
@@ -53,8 +53,8 @@
     private async Task Submit()
     {
         var selectedHabits = Habits.Where(h => h.IsChecked).ToList();
-        await HabitLogProvider.CreateOrder(user, selectedHabits.Select(habit => new HabitItem { Habit = habit }).ToList());
+        await HabitLogProvider.CreateOrder(user, selectedHabits.Select(habit => new HabitItems { Habit = habit }).ToList());
         StateHasChanged();
         NavigationManager.NavigateTo("/", true);
     }
-} *@
+} 

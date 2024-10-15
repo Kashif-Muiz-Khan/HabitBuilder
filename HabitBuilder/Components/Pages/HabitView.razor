@@ -1,0 +1,62 @@
+﻿@page "/habit"
+@using HabitBuilder.Context
+@using HabitBuilder.Model
+@using Microsoft.EntityFrameworkCore
+@inject DatabaseContext DatabaseContext
+
+<div class="d-flex justify-content-between">
+    <div>
+        <h3>Habit</h3>
+    </div>
+    <div>
+        <a @onclick="ShowAddHabit" class="btn btn-primary">Add Habit</a>
+    </div>
+</div>
+
+@if (showForm)
+{
+    <HabitForm OnSaved="HabitSaved" Model="habit" />
+}
+
+<HabitList OnEditClicked="ShowEditHabit" OnDeleteClicked="OnDelete" Habits="habits"/>
+
+@code{
+    private Habit habit = new Habit();
+    private IQueryable<Habit>? habits;
+    private bool showForm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHabit();
+    }
+
+    private async Task HabitSaved()
+    {
+        showForm = false;
+        await GetHabit();
+    }
+
+    private async Task GetHabit()
+    {
+        habits = (await DatabaseContext.Habits.ToListAsync()).AsQueryable();
+    }
+
+    private void ShowAddHabit()
+    {
+        habit = new Habit();
+        showForm = !showForm;
+    }
+
+    private void ShowEditHabit(Habit editHabit)
+    {
+        habit = editHabit;
+        showForm = true;
+    }
+
+    private async Task OnDelete()
+    {
+        showForm = false;
+        await GetHabit();
+    }
+
+}

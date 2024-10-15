@@ -9,28 +9,28 @@
 
 <div class="card">
     <ApexChart TItem="MyData" Title="HabitLog Chart">
-        <ApexPointSeries TItem="MyData" HabitItems="Data" Name="Total Points" SeriesType="SeriesType.Area" XValue="e => e.HabitLog" YValue="e => e.Total" />
+        <ApexPointSeries TItem="MyData" Items="Data" Name="Total Points" SeriesType="SeriesType.Area" XValue="e => e.HabitLog" YValue="e => e.Total" />
     </ApexChart>
 </div>
 
 @code {
-    private IEnumerable<HabitLog>? orders;
+    private IEnumerable<HabitLog>? habitlogs;
     private List<MyData> Data { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        orders = await HabitLogProvider.GetAllOrdersAsync();
+        habitlogs = await HabitLogProvider.GetAllOrdersAsync();
         CalculateTotalPoints();
     }
 
     private void CalculateTotalPoints()
     {
-        if (orders != null)
+        if (habitlogs != null)
         {
-            foreach (var order in orders)
+            foreach (var habitlog in habitlogs)
             {
-                var totalPoints = order.HabitItems.Sum(item => item.Habit.Point);
-                Data.Add(new MyData { HabitLog = order.Id.ToString(), Total = totalPoints });
+                var totalPoints = habitlog.HabitItems.Sum(item => item.Habit.Point);
+                Data.Add(new MyData { HabitLog = habitlog.Id.ToString(), Total = totalPoints });
             }
         }
     }
