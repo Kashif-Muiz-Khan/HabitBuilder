@@ -186,6 +186,7 @@ namespace HabitBuilder.Migrations
                     Frequency = table.Column<int>(type: "INTEGER", nullable: false),
                     Point = table.Column<int>(type: "INTEGER", nullable: false),
                     Difficulty = table.Column<string>(type: "TEXT", nullable: false),
+                    IsChecked = table.Column<bool>(type: "INTEGER", nullable: false),
                     UserId = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -226,14 +227,46 @@ namespace HabitBuilder.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     HabitId = table.Column<int>(type: "INTEGER", nullable: false),
-                    HabitStatus = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Date = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    UserId = table.Column<string>(type: "TEXT", nullable: true),
+                    Day = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    TotalPoints = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_HabitLogs", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_HabitLogs_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_HabitLogs_Habits_HabitId",
+                        column: x => x.HabitId,
+                        principalTable: "Habits",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "HabitItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    HabitLogId = table.Column<int>(type: "INTEGER", nullable: false),
+                    HabitId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HabitItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_HabitItems_HabitLogs_HabitLogId",
+                        column: x => x.HabitLogId,
+                        principalTable: "HabitLogs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_HabitItems_Habits_HabitId",
                         column: x => x.HabitId,
                         principalTable: "Habits",
                         principalColumn: "Id",
@@ -283,9 +316,24 @@ namespace HabitBuilder.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_HabitItems_HabitId",
+                table: "HabitItems",
+                column: "HabitId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HabitItems_HabitLogId",
+                table: "HabitItems",
+                column: "HabitLogId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_HabitLogs_HabitId",
                 table: "HabitLogs",
                 column: "HabitId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HabitLogs_UserId",
+                table: "HabitLogs",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Habits_UserId",
@@ -317,7 +365,7 @@ namespace HabitBuilder.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "HabitLogs");
+                name: "HabitItems");
 
             migrationBuilder.DropTable(
                 name: "Quotes");
@@ -326,10 +374,13 @@ namespace HabitBuilder.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Habits");
+                name: "HabitLogs");
 
             migrationBuilder.DropTable(
                 name: "FavouriteQuotes");
+
+            migrationBuilder.DropTable(
+                name: "Habits");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

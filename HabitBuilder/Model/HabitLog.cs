@@ -5,7 +5,10 @@ namespace HabitBuilder.Model
     {
         public int Id { get; set; }
         public Habit Habit { get; set; }
-        public bool HabitStatus { get; set; }
-        public DateTime Date { get; set; }
+        public User User { get; set; }
+
+        public List<HabitItems> HabitItems { get; set; } = [];
+        public DateOnly Day { get; set; }
+        public int TotalPoints { get; set; }
     }
 }

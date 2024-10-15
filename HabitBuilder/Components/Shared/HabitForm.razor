@@ -1,0 +1,94 @@
+﻿﻿@using HabitBuilder.Context
+@using HabitBuilder.Model
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+@inject HabitProvider HabitProvider
+@inject NavigationManager NavigationManager
+
+
+
+
+
+
+
+    <div class="card">
+        <div class="card-body bg-light">
+            <h4 class="card-title">
+                @(model.Id == 0 ? "Add Habit" : "Edit Habit")
+            </h4>
+            <EditForm OnValidSubmit="Submit" EditContext="editContext">
+                <DataAnnotationsValidator />
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="name" class="form-label">Name</label>
+                        <InputText class="form-control" placeholder="Name" @bind-Value="model.Name" />
+                        <ValidationMessage For="@(() => model.Name)" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="type" class="form-label">Type</label>
+                        <InputText class="form-control" placeholder="Type" @bind-Value="model.Type" />
+                        <ValidationMessage For="@(() => model.Type)" />
+                    </div>
+                <div class="col-md-3">
+                    <label for="type" class="form-label">Description</label>
+                    <InputText class="form-control" placeholder="Description" @bind-Value="model.Description" />
+                    <ValidationMessage For="@(() => model.Description)" />
+                </div>
+                    <div class="col-md-3">
+                        <label for="difficulty" class="form-label">Difficulty</label>
+                        <InputText class="form-control" @bind-Value="model.Difficulty" />
+                        <ValidationMessage For="@(() => model.Difficulty)" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="point" class="form-label">Point</label>
+                        <InputNumber class="form-control" @bind-Value="model.Point" />
+                        <ValidationMessage For="@(() => model.Point)" />
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary float-end">@(model.Id == 0 ? "Add Habit" : "Save Changes")
+                        </button>
+                    </div>
+
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+
+
+
+<HabitList />
+
+@code {
+    [Parameter]
+    public EventCallback<bool> OnSaved { get; set; }
+
+    [Parameter]
+    public Habit Model
+    {
+        get
+        {
+            return model;
+        }
+        set
+        {
+            model = value ?? new Habit();
+            editContext = new(model);
+        }
+    }
+    private Habit model;
+    private EditContext editContext;
+
+    private async Task Submit()
+    {
+        if (Model.Id == 0)
+            HabitProvider.AddHabitAsync(Model);
+        else
+            HabitProvider.UpdateHabitAsync(Model);
+
+        await OnSaved.InvokeAsync();
+        NavigationManager.NavigateTo("/habit", true);
+    }
+
+
+}

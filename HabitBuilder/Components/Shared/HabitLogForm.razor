@@ -1,0 +1,60 @@
+﻿@* ﻿@using System.ComponentModel.DataAnnotations
+@using HabitBuilder.Context
+@using HabitBuilder.Model
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@inject UserProvider UserProvider
+@inject HabitLogProvider HabitLogProvider
+@inject HabitProvider HabitProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Habit HabitLog</h4>
+                    <EditForm OnValidSubmit="Submit" Model="new object()" FormName="HabitOrderForm">
+                        <DataAnnotationsValidator />
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                @foreach (Habit habit in Habits)
+                                {
+                                    <div class="form-check">
+                                        <InputCheckbox class="form-check-input" @bind-Value="habit.IsChecked" id="@($"habit_{habit.Id}")" />
+                                        <label class="form-check-label" for="@($"habit_{habit.Id}")">
+                                            @habit.Name
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IQueryable<Habit> Habits { get; set; }
+    private User user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var username = authState!.User!.Identity!.Name!;
+        user = UserProvider.GetUserByUsername(username)!;
+        Habits = (await HabitProvider.GetAllHabitsAsync()).AsQueryable();
+    }
+
+    private async Task Submit()
+    {
+        var selectedHabits = Habits.Where(h => h.IsChecked).ToList();
+        await HabitLogProvider.CreateOrder(user, selectedHabits.Select(habit => new HabitItem { Habit = habit }).ToList());
+        StateHasChanged();
+        NavigationManager.NavigateTo("/", true);
+    }
+} *@

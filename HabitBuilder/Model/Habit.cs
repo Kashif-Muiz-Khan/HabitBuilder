@@ -21,8 +21,10 @@ namespace HabitBuilder.Model
     [Required(ErrorMessage = "Please enter the Point")]
     public int Point { get; set; }
 
-        [Required(ErrorMessage = "Please enter the difficulty")]
+    [Required(ErrorMessage = "Please enter the difficulty")]
     public string Difficulty { get; set; }
+
+     public bool IsChecked { get; set; }
 
     }
 }

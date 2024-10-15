@@ -1,0 +1,78 @@
+﻿@* ﻿@rendermode InteractiveServer
+@using HabitBuilder.Context
+@using HabitBuilder.Model
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.EntityFrameworkCore
+@inject HabitLogProvider HabitLogProvider
+@inject NavigationManager NavigationManager
+
+
+
+
+
+
+
+@if (HabitLogs == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div>
+        <QuickGrid Theme="order" Class="table" Items="@HabitLogs" Pagination="@pagination">
+            <PropertyColumn Property="@(p => p.Id)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Day)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.TotalPoints)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.HabitItems.Count)" Sortable="true" />
+            <TemplateColumn Title="Edit">
+                <button class="btn btn-success" @onclick="() => Edit(context)">Edit</button>
+            </TemplateColumn>
+            <TemplateColumn Title="Delete">
+                <button class="btn btn-danger" @onclick="() => Delete(context)">Delete</button>
+            </TemplateColumn>
+            <TemplateColumn Title="Info">
+                <button class="btn btn-primary" @onclick="() => ShowInfo(context)">Info</button>
+            </TemplateColumn>
+        </QuickGrid>
+        <Paginator State="@pagination" />
+    </div>
+}
+
+@code {
+
+
+
+    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private string nameSearch;
+
+
+    public IQueryable<HabitLog>? HabitLogs { get; set; }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        HabitLogs = HabitLogProvider.GetAllOrders();
+    }
+
+
+
+
+    private void ShowInfo(HabitLog order)
+    {
+        NavigationManager.NavigateTo($"/Info/{order.Id}");
+    }
+
+    private async void Edit(HabitLog order)
+    {
+        await HabitLogProvider.UpdateOrderAsync(order);
+    }
+
+
+    private async Task Delete(HabitLog order)
+    {
+        await HabitLogProvider.DeleteOrder(order);
+        StateHasChanged();
+        NavigationManager.NavigateTo("/order", true);
+    }
+}  *@

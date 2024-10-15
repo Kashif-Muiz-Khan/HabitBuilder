@@ -4,6 +4,7 @@ using HabitBuilder.Components.Account;
 using HabitBuilder.Components;
 using HabitBuilder.Context;
 using HabitBuilder.Model;
+using ApexCharts;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,7 +31,10 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddDbContext<DatabaseContext>();
 builder.Services.AddScoped<DatabaseSeeder>();
-
+builder.Services.AddScoped<HabitProvider>();
+builder.Services.AddScoped<HabitLogProvider>();
+builder.Services.AddScoped<UserProvider>();
+builder.Services.AddQuickGridEntityFrameworkAdapter();
 
 
 

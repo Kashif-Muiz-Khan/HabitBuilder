@@ -7,5 +7,7 @@ namespace HabitBuilder.Model
     {
 
         public List<Habit> Habits { get; set; } = new List<Habit>();
+
+        public List<HabitLog> HabitLogs { get; set; } = new List<HabitLog>();
     }
 }

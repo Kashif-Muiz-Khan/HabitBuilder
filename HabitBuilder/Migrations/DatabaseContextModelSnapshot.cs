@@ -15,7 +15,7 @@ namespace HabitBuilder.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.3");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
 
             modelBuilder.Entity("HabitBuilder.Model.FavouriteQuote", b =>
                 {
@@ -50,6 +50,9 @@ namespace HabitBuilder.Migrations
                     b.Property<int>("Frequency")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsChecked")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -71,24 +74,50 @@ namespace HabitBuilder.Migrations
                     b.ToTable("Habits");
                 });
 
+            modelBuilder.Entity("HabitBuilder.Model.HabitItems", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("HabitId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("HabitLogId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HabitId");
+
+                    b.HasIndex("HabitLogId");
+
+                    b.ToTable("HabitItems");
+                });
+
             modelBuilder.Entity("HabitBuilder.Model.HabitLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateOnly>("Day")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("HabitId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("HabitStatus")
+                    b.Property<int>("TotalPoints")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("HabitId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("HabitLogs");
                 });
@@ -325,6 +354,25 @@ namespace HabitBuilder.Migrations
                         .HasForeignKey("UserId");
                 });
 
+            modelBuilder.Entity("HabitBuilder.Model.HabitItems", b =>
+                {
+                    b.HasOne("HabitBuilder.Model.Habit", "Habit")
+                        .WithMany()
+                        .HasForeignKey("HabitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HabitBuilder.Model.HabitLog", "HabitLog")
+                        .WithMany("HabitItems")
+                        .HasForeignKey("HabitLogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Habit");
+
+                    b.Navigation("HabitLog");
+                });
+
             modelBuilder.Entity("HabitBuilder.Model.HabitLog", b =>
                 {
                     b.HasOne("HabitBuilder.Model.Habit", "Habit")
@@ -333,7 +381,13 @@ namespace HabitBuilder.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("HabitBuilder.Model.User", "User")
+                        .WithMany("HabitLogs")
+                        .HasForeignKey("UserId");
+
                     b.Navigation("Habit");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HabitBuilder.Model.Quote", b =>
@@ -403,8 +457,15 @@ namespace HabitBuilder.Migrations
                     b.Navigation("Quotes");
                 });
 
+            modelBuilder.Entity("HabitBuilder.Model.HabitLog", b =>
+                {
+                    b.Navigation("HabitItems");
+                });
+
             modelBuilder.Entity("HabitBuilder.Model.User", b =>
                 {
+                    b.Navigation("HabitLogs");
+
                     b.Navigation("Habits");
                 });
 #pragma warning restore 612, 618

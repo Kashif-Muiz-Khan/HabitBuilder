@@ -1,0 +1,92 @@
+﻿@rendermode InteractiveServer
+@using HabitBuilder.Context
+@using HabitBuilder.Model
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.EntityFrameworkCore
+@inject HabitProvider HabitProvider
+@inject NavigationManager NavigationManager
+
+
+
+
+<h3>Habit QuickGrid</h3>
+
+
+@if (Habits == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div>
+        <QuickGrid Theme="habit" Class="table" Items="@FilteredHabit" Pagination="@pagination">
+            <PropertyColumn Property="@(p => p.Id)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Name)" Sortable="true">
+                <ColumnOptions>
+                    <div class="search-box">
+                        <input type="search" autofocus @bind="nameSearch" @bind:event="oninput" placeholder="Habit name..." />
+                    </div>
+                </ColumnOptions>
+            </PropertyColumn>
+            <PropertyColumn Property="@(p => p.Type)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Description)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Difficulty)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Point)" Sortable="true" />
+            <TemplateColumn Title="Edit">
+                <button class="btn btn-success" @onclick="() => Edit(context)">Edit</button>
+            </TemplateColumn>
+            <TemplateColumn Title="Delete">
+                <button class="btn btn-danger" @onclick="() => Delete(context)">Delete</button>
+            </TemplateColumn>
+            <TemplateColumn Title="Info">
+                <button class="btn btn-primary" @onclick="() => ShowInfo(context)">Info</button>
+            </TemplateColumn>
+        </QuickGrid>
+        <Paginator State="@pagination" />
+    </div>
+}
+
+@code {
+
+    private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private string nameSearch;
+
+    [Parameter]
+    public EventCallback<Habit> OnEditClicked { get; set; }
+
+    [Parameter]
+    public EventCallback<Habit> OnDeleteClicked { get; set; }
+
+    [Parameter]
+    public IQueryable<Habit>? Habits { get; set; }
+
+    private IQueryable<Habit>? FilteredHabit
+    {
+        get
+        {
+            IQueryable<Habit>? filtered = Habits;
+            if (!string.IsNullOrEmpty(nameSearch))
+            {
+                filtered = filtered?.Where(c => c.Name.Contains(nameSearch, StringComparison.CurrentCultureIgnoreCase));
+            }
+            return filtered;
+
+        }
+    }
+
+    public void ShowInfo(Habit habit)
+    {
+        NavigationManager.NavigateTo($"/Info/{habit.Id}");
+    }
+
+    private void Edit(Habit habit)
+    {
+        OnEditClicked.InvokeAsync(habit);
+    }
+
+    private async void Delete(Habit habit)
+    {
+        HabitProvider.DeleteHabitAsync(habit);
+        StateHasChanged();
+    }
+}
