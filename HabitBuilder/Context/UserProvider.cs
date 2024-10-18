@@ -1,5 +1,8 @@
-﻿using HabitBuilder.Model;
+﻿using HabitBuilder.Context;
+using HabitBuilder.Model;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace HabitBuilder.Context
 {

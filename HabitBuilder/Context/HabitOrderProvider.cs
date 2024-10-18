@@ -1,83 +1,81 @@
 ﻿using HabitBuilder.Context;
 using HabitBuilder.Model;
-using HabitBuilder.Context;
-using HabitBuilder.Model;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace HabitBuilder.Context
 {
-    public class HabitLogProvider
+    public class HabitOrderProvider
     {
         private readonly DatabaseContext _context;
 
-        public HabitLogProvider(DatabaseContext context)
+        public HabitOrderProvider(DatabaseContext context)
         {
             _context = context;
         }
 
 
 
-        public async Task<List<HabitLog>?> GetAllOrdersAsync()
+        public async Task<List<HabitOrder>?> GetAllOrdersAsync()
         {
             // Return all orders
-            return await _context.HabitLogs
+            return await _context.Orders
                 .Include(order => order.User)
-                .Include(order => order.HabitItems)
+                .Include(order => order.Items)
                 .ThenInclude(item => item.Habit)
                 .OrderBy(order => order.Id)
                 .ToListAsync();
         }
 
-        public IQueryable<HabitLog> GetAllOrders()
+        public IQueryable<HabitOrder> GetAllOrders()
         {
-            // Return IQueryable<HabitLog>
-            return _context.HabitLogs
+            // Return IQueryable<Order>
+            return _context.Orders
                 .Include(order => order.User)
-                .Include(order => order.HabitItems)
+                .Include(order => order.Items)
                 .ThenInclude(item => item.Habit)
                 .OrderBy(order => order.Id);
         }
 
 
-        public async Task CreateOrder(User user, IEnumerable<HabitItems> items)
+        public async Task CreateOrder(User user, IEnumerable<HabitOrderItem> items)
         {
             // Create a new order
-            var order = new HabitLog
+            var order = new HabitOrder
             {
                 User = user,
-                HabitItems = items.ToList(), // Materialize the items into a list
+                Items = items.ToList(), // Materialize the items into a list
                 Day = DateOnly.FromDateTime(DateTime.Now)
             };
 
             // Calculate total points for the order
-            var totalPoints = order.HabitItems.Sum(item => item.Habit.Point);
+            var totalPoints = order.Items.Sum(item => item.Habit.Point);
             order.TotalPoints = totalPoints;
 
             // Add the order to the database
-            _context.HabitLogs.Add(order);
+            _context.Orders.Add(order);
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteOrder(HabitLog order)
+        public async Task DeleteOrder(HabitOrder order)
         {
-            _context.HabitLogs.Remove(order);
+            _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateOrderAsync(HabitLog order)
+        public async Task UpdateOrderAsync(HabitOrder order)
         {
-            _context.HabitLogs.Update(order);
+            _context.Orders.Update(order);
             await _context.SaveChangesAsync();
         }
 
 
-        public async Task<HabitLog?> GetOrderAsync(int id)
+        public async Task<HabitOrder?> GetOrderAsync(int id)
         {
             // Return the order with the specified ID
-            return await _context.HabitLogs
+            return await _context.Orders
                 .Include(order => order.User)
-                .Include(order => order.HabitItems)
+                .Include(order => order.Items)
                 .ThenInclude(item => item.Habit.Id)
                 .Include(item => item.TotalPoints)
                 .FirstOrDefaultAsync(order => order.Id == id);
@@ -87,7 +85,7 @@ namespace HabitBuilder.Context
         public async Task<int> GetTotalOrdersForUserAsync(User user)
         {
             // Return the total number of orders for the specified user
-            return await _context.HabitLogs
+            return await _context.Orders
                 .Where(order => order.User.Id == user.Id)
                 .CountAsync();
         }

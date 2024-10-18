@@ -74,28 +74,7 @@ namespace HabitBuilder.Migrations
                     b.ToTable("Habits");
                 });
 
-            modelBuilder.Entity("HabitBuilder.Model.HabitItems", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("HabitId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("HabitLogId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HabitId");
-
-                    b.HasIndex("HabitLogId");
-
-                    b.ToTable("HabitItems");
-                });
-
-            modelBuilder.Entity("HabitBuilder.Model.HabitLog", b =>
+            modelBuilder.Entity("HabitBuilder.Model.HabitOrder", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,9 +82,6 @@ namespace HabitBuilder.Migrations
 
                     b.Property<DateOnly>("Day")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("HabitId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int>("TotalPoints")
                         .HasColumnType("INTEGER");
@@ -115,11 +91,30 @@ namespace HabitBuilder.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("HabitId");
-
                     b.HasIndex("UserId");
 
-                    b.ToTable("HabitLogs");
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("HabitBuilder.Model.HabitOrderItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("HabitId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HabitId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("HabitOrderItem");
                 });
 
             modelBuilder.Entity("HabitBuilder.Model.Quote", b =>
@@ -132,7 +127,7 @@ namespace HabitBuilder.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("FavouiteQuoteId")
+                    b.Property<int?>("FavouiteQuoteId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("QuoteText")
@@ -354,49 +349,39 @@ namespace HabitBuilder.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("HabitBuilder.Model.HabitItems", b =>
+            modelBuilder.Entity("HabitBuilder.Model.HabitOrder", b =>
                 {
-                    b.HasOne("HabitBuilder.Model.Habit", "Habit")
-                        .WithMany()
-                        .HasForeignKey("HabitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("HabitBuilder.Model.HabitLog", "HabitLog")
-                        .WithMany("HabitItems")
-                        .HasForeignKey("HabitLogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Habit");
-
-                    b.Navigation("HabitLog");
-                });
-
-            modelBuilder.Entity("HabitBuilder.Model.HabitLog", b =>
-                {
-                    b.HasOne("HabitBuilder.Model.Habit", "Habit")
-                        .WithMany()
-                        .HasForeignKey("HabitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("HabitBuilder.Model.User", "User")
-                        .WithMany("HabitLogs")
+                        .WithMany("Orders")
                         .HasForeignKey("UserId");
 
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HabitBuilder.Model.HabitOrderItem", b =>
+                {
+                    b.HasOne("HabitBuilder.Model.Habit", "Habit")
+                        .WithMany()
+                        .HasForeignKey("HabitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HabitBuilder.Model.HabitOrder", "Order")
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Habit");
 
-                    b.Navigation("User");
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("HabitBuilder.Model.Quote", b =>
                 {
                     b.HasOne("HabitBuilder.Model.FavouriteQuote", "FavouiteQuote")
                         .WithMany("Quotes")
-                        .HasForeignKey("FavouiteQuoteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FavouiteQuoteId");
 
                     b.Navigation("FavouiteQuote");
                 });
@@ -457,16 +442,16 @@ namespace HabitBuilder.Migrations
                     b.Navigation("Quotes");
                 });
 
-            modelBuilder.Entity("HabitBuilder.Model.HabitLog", b =>
+            modelBuilder.Entity("HabitBuilder.Model.HabitOrder", b =>
                 {
-                    b.Navigation("HabitItems");
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("HabitBuilder.Model.User", b =>
                 {
-                    b.Navigation("HabitLogs");
-
                     b.Navigation("Habits");
+
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

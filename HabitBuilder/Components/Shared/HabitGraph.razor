@@ -1,43 +1,43 @@
-﻿﻿@using HabitBuilder.Context
+﻿@using HabitBuilder.Context
 @using HabitBuilder.Model
 @using ApexCharts
 @using Microsoft.AspNetCore.Components.Authorization
 @inject UserProvider UserProvider
-@inject HabitLogProvider HabitLogProvider
+@inject HabitOrderProvider HabitOrderProvider
 
 <h3>HabitGraph</h3>
 
 <div class="card">
-    <ApexChart TItem="MyData" Title="HabitLog Chart">
-        <ApexPointSeries TItem="MyData" Items="Data" Name="Total Points" SeriesType="SeriesType.Area" XValue="e => e.HabitLog" YValue="e => e.Total" />
+    <ApexChart TItem="MyData" Title="Order Chart">
+        <ApexPointSeries TItem="MyData" Items="Data" Name="Total Points" SeriesType="SeriesType.Area" XValue="e => e.Order" YValue="e => e.Total" />
     </ApexChart>
 </div>
 
 @code {
-    private IEnumerable<HabitLog>? habitlogs;
+    private IEnumerable<HabitOrder>? orders;
     private List<MyData> Data { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        habitlogs = await HabitLogProvider.GetAllOrdersAsync();
+        orders = await HabitOrderProvider.GetAllOrdersAsync();
         CalculateTotalPoints();
     }
 
     private void CalculateTotalPoints()
     {
-        if (habitlogs != null)
+        if (orders != null)
         {
-            foreach (var habitlog in habitlogs)
+            foreach (var order in orders)
             {
-                var totalPoints = habitlog.HabitItems.Sum(item => item.Habit.Point);
-                Data.Add(new MyData { HabitLog = habitlog.Id.ToString(), Total = totalPoints });
+                var totalPoints = order.Items.Sum(item => item.Habit.Point);
+                Data.Add(new MyData { Order = order.Id.ToString(), Total = totalPoints });
             }
         }
     }
 
     public class MyData
     {
-        public string HabitLog { get; set; }
+        public string Order { get; set; }
         public decimal Total { get; set; }
     }
 }

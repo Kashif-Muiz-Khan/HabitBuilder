@@ -10,7 +10,7 @@ namespace HabitBuilder.Context
 
         public DbSet<Habit> Habits { get; set; }
         public DbSet<Quote> Quotes { get; set; }
-        public DbSet<HabitLog> HabitLogs { get; set; }
+        public DbSet<HabitOrder> Orders { get; set; }
         public DbSet<FavouriteQuote> FavouriteQuotes { get; set; }
 
 

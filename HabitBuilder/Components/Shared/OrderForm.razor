@@ -4,7 +4,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
 @inject UserProvider UserProvider
-@inject HabitLogProvider HabitLogProvider
+@inject HabitOrderProvider HabitOrderProvider
 @inject HabitProvider HabitProvider
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
@@ -14,7 +14,7 @@
         <div class="col-md-9">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">Habit HabitLog</h4>
+                    <h4 class="card-title">Habit Order</h4>
                     <EditForm OnValidSubmit="Submit" Model="new object()" FormName="HabitOrderForm">
                         <DataAnnotationsValidator />
                         <div class="row g-3">
@@ -53,8 +53,8 @@
     private async Task Submit()
     {
         var selectedHabits = Habits.Where(h => h.IsChecked).ToList();
-        await HabitLogProvider.CreateOrder(user, selectedHabits.Select(habit => new HabitItems { Habit = habit }).ToList());
+        await HabitOrderProvider.CreateOrder(user, selectedHabits.Select(habit => new HabitOrderItem { Habit = habit }).ToList());
         StateHasChanged();
         NavigationManager.NavigateTo("/", true);
     }
-} 
+}

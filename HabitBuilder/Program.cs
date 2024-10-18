@@ -32,7 +32,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddDbContext<DatabaseContext>();
 builder.Services.AddScoped<DatabaseSeeder>();
 builder.Services.AddScoped<HabitProvider>();
-builder.Services.AddScoped<HabitLogProvider>();
+builder.Services.AddScoped<HabitOrderProvider>();
 builder.Services.AddScoped<UserProvider>();
 builder.Services.AddQuickGridEntityFrameworkAdapter();
 

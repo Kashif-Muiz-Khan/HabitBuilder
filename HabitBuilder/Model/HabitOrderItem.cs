@@ -1,10 +1,11 @@
 ﻿namespace HabitBuilder.Model
 {
-    public class HabitItems
+    public class HabitOrderItem
     {
         public int Id { get; set; }
-        public HabitLog HabitLog { get; set; }
+        public HabitOrder Order { get; set; }
         public Habit Habit { get; set; }
+
 
     }
 }

@@ -3,7 +3,7 @@
 @using HabitBuilder.Model
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.EntityFrameworkCore
-@inject HabitLogProvider HabitLogProvider
+@inject HabitOrderProvider HabitOrderProvider
 @inject NavigationManager NavigationManager
 
 
@@ -12,18 +12,18 @@
 
 
 
-@if (HabitLogs == null)
+@if (Orders == null)
 {
     <p>Loading...</p>
 }
 else
 {
     <div>
-        <QuickGrid Theme="order" Class="table" Items="@HabitLogs" Pagination="@pagination">
+        <QuickGrid Theme="order" Class="table" Items="@Orders" Pagination="@pagination">
             <PropertyColumn Property="@(p => p.Id)" Sortable="true" />
             <PropertyColumn Property="@(p => p.Day)" Sortable="true" />
             <PropertyColumn Property="@(p => p.TotalPoints)" Sortable="true" />
-            <PropertyColumn Property="@(p => p.HabitItems.Count)" Sortable="true" />
+            <PropertyColumn Property="@(p => p.Items.Count)" Sortable="true" />
             <TemplateColumn Title="Edit">
                 <button class="btn btn-success" @onclick="() => Edit(context)">Edit</button>
             </TemplateColumn>
@@ -46,33 +46,33 @@ else
     private string nameSearch;
 
 
-    public IQueryable<HabitLog>? HabitLogs { get; set; }
+    public IQueryable<HabitOrder>? Orders { get; set; }
 
 
 
     protected override async Task OnInitializedAsync()
     {
-        HabitLogs = HabitLogProvider.GetAllOrders();
+        Orders = HabitOrderProvider.GetAllOrders();
     }
 
 
 
 
-    private void ShowInfo(HabitLog order)
+    private void ShowInfo(HabitOrder order)
     {
         NavigationManager.NavigateTo($"/Info/{order.Id}");
     }
 
-    private async void Edit(HabitLog order)
+    private async void Edit(HabitOrder order)
     {
-        await HabitLogProvider.UpdateOrderAsync(order);
+        await HabitOrderProvider.UpdateOrderAsync(order);
     }
 
 
-    private async Task Delete(HabitLog order)
+    private async Task Delete(HabitOrder order)
     {
-        await HabitLogProvider.DeleteOrder(order);
+        await HabitOrderProvider.DeleteOrder(order);
         StateHasChanged();
         NavigationManager.NavigateTo("/order", true);
     }
-}  
+} 
