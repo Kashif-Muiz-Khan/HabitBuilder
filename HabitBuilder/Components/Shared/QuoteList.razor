@@ -1,0 +1,130 @@
+﻿@using HabitBuilder.Context
+@using HabitBuilder.Model
+@inject QuoteProvider QuoteProvider
+@inject NavigationManager NavigationManager
+
+<h3>Quote List</h3>
+
+<div>
+    <div class="row g-0">
+        <div class="col-md-12">
+            <button class="btn btn-primary float-end" @onclick="ShowAddQuote">
+                Add Quote
+            </button>
+        </div>
+    </div>
+
+    @if (showForm)
+    {
+        <div class="card">
+            <div class="card-body bg-light">
+                <h4 class="card-title">
+                    @(model.Id == 0 ? "Add Quote" : "Edit Quote")
+                </h4>
+                <EditForm OnValidSubmit="Submit" EditContext="editContext">
+                    <DataAnnotationsValidator />
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="quoteText" class="form-label">Quote Text</label>
+                            <InputText class="form-control" placeholder="Enter the quote" @bind-Value="model.QuoteText" />
+                            <ValidationMessage For="@(() => model.QuoteText)" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="author" class="form-label">Author</label>
+                            <InputText class="form-control" placeholder="Enter the author's name" @bind-Value="model.Author" />
+                            <ValidationMessage For="@(() => model.Author)" />
+                        </div>
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary float-end">
+                                @(model.Id == 0 ? "Add Quote" : "Edit Quote")
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    }
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Quote Text</th>
+            <th scope="col">Author</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var quote in quotes)
+        {
+            <tr>
+                <td>@quote.Id</td>
+                <td>@quote.QuoteText</td>
+                <td>@quote.Author</td>
+                <td>
+                    <button class="btn btn-success" @onclick="() => Edit(quote)">Edit</button>
+                </td>
+                <td>
+                    <button class="btn btn-danger" @onclick="() => Delete(quote)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Quote>? quotes;
+    private EditContext editContext;
+    private Quote model = new Quote();
+    private bool showForm;
+
+    // Method to show the add quote form
+    private void ShowAddQuote()
+    {
+        model = new Quote();
+        editContext = new EditContext(model);
+        showForm = true;
+    }
+
+    // Method to open the form for editing an existing quote
+    private void Edit(Quote quote)
+    {
+        model = quote;
+        editContext = new EditContext(model);
+        showForm = true;
+    }
+
+    // Method to handle form submission
+    private async Task Submit()
+    {
+        if (model.Id == 0)
+            await QuoteProvider.AddQuoteAsync(model); // Add new quote
+        else
+            await QuoteProvider.UpdateQuoteAsync(model); // Update existing quote
+
+        await Refresh();
+        showForm = false; // Hide form after submission
+    }
+
+    // Method to refresh the list of quotes
+    private async Task Refresh()
+    {
+        model = new Quote();
+        editContext = new EditContext(model);
+        quotes = await QuoteProvider.GetAllQuotesAsync();
+    }
+
+    // Method to delete a quote
+    private async Task Delete(Quote quote)
+    {
+        await QuoteProvider.DeleteQuoteAsync(quote);
+        await Refresh();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Refresh();
+    }
+}

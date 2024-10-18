@@ -33,6 +33,7 @@ builder.Services.AddDbContext<DatabaseContext>();
 builder.Services.AddScoped<DatabaseSeeder>();
 builder.Services.AddScoped<HabitProvider>();
 builder.Services.AddScoped<HabitOrderProvider>();
+builder.Services.AddScoped<QuoteProvider>();
 builder.Services.AddScoped<UserProvider>();
 builder.Services.AddQuickGridEntityFrameworkAdapter();
 
