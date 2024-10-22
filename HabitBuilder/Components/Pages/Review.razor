@@ -1,0 +1,89 @@
+﻿@page "/review"
+@using HabitBuilder.Context
+@using HabitBuilder.Model
+@using Microsoft.AspNetCore.Components.Authorization
+@inject ReviewProvider ReviewProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>Habit Performance</h3>
+
+@if (user == null)
+{
+    <div class="alert alert-warning">
+        You need to log in to see your habit performance statistics.
+    </div>
+}
+else if (habitPerformance != null && habitPerformance.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Habit</th>
+                <th>Total Completions</th>
+                <th>Total Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var performance in habitPerformance)
+            {
+                <tr>
+                    <td>@performance.HabitName</td>
+                    <td>@performance.TotalCompletions</td>
+                    <td>@performance.TotalPoints</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (habitPerformance != null && !habitPerformance.Any())
+{
+    <div class="alert alert-info">
+        No habit performance data found.
+    </div>
+}
+else
+{
+    <div>Loading...</div>
+}
+
+@code {
+    private User user;
+    private List<HabitPerformance> habitPerformance;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var username = authState.User?.Identity?.Name;
+
+        if (!string.IsNullOrEmpty(username))
+        {
+            user = await GetUserByUsername(username);
+            if (user != null)
+            {
+                Console.WriteLine($"Fetching habit performance for user: {user.UserName}");
+                habitPerformance = await ReviewProvider.GetHabitPerformanceAsync(user);
+
+                // Debugging output
+                if (habitPerformance != null)
+                {
+                    Console.WriteLine($"Retrieved {habitPerformance.Count} performance records.");
+                }
+                else
+                {
+                    Console.WriteLine("No performance data retrieved.");
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine("User not authenticated.");
+        }
+    }
+
+    private async Task<User> GetUserByUsername(string username)
+    {
+        // Logic to fetch the user by username
+        // Replace with actual method to get User object from UserProvider
+        return await Task.FromResult(new User { UserName = username });
+    }
+}

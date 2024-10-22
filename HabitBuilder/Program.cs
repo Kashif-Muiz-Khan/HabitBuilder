@@ -35,6 +35,7 @@ builder.Services.AddScoped<HabitProvider>();
 builder.Services.AddScoped<HabitOrderProvider>();
 builder.Services.AddScoped<QuoteProvider>();
 builder.Services.AddScoped<UserProvider>();
+builder.Services.AddScoped<ReviewProvider>();
 builder.Services.AddQuickGridEntityFrameworkAdapter();
 
 
