@@ -2,7 +2,6 @@
 using HabitBuilder.Model;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace HabitBuilder.Context
 {
     public class HabitOrderProvider
@@ -14,12 +13,11 @@ namespace HabitBuilder.Context
             _context = context;
         }
 
-
-
-        public async Task<List<HabitOrder>?> GetAllOrdersAsync()
+        public async Task<List<HabitOrder>?> GetAllOrdersAsync(User user)
         {
-            // Return all orders
+            // Return all orders for the specified user
             return await _context.Orders
+                .Where(order => order.User.Id == user.Id) // Filter by user ID
                 .Include(order => order.User)
                 .Include(order => order.Items)
                 .ThenInclude(item => item.Habit)
@@ -27,16 +25,16 @@ namespace HabitBuilder.Context
                 .ToListAsync();
         }
 
-        public IQueryable<HabitOrder> GetAllOrders()
+        public IQueryable<HabitOrder> GetAllOrders(User user)
         {
-            // Return IQueryable<Order>
+            // Return IQueryable<Order> filtered by user ID
             return _context.Orders
+                .Where(order => order.User.Id == user.Id) // Filter by user ID
                 .Include(order => order.User)
                 .Include(order => order.Items)
                 .ThenInclude(item => item.Habit)
                 .OrderBy(order => order.Id);
         }
-
 
         public async Task CreateOrder(User user, IEnumerable<HabitOrderItem> items)
         {
@@ -69,30 +67,23 @@ namespace HabitBuilder.Context
             await _context.SaveChangesAsync();
         }
 
-
-        public async Task<HabitOrder?> GetOrderAsync(int id)
+        public async Task<HabitOrder?> GetOrderAsync(int id, User user)
         {
-            // Return the order with the specified ID
+            // Return the order with the specified ID and user
             return await _context.Orders
+                .Where(order => order.User.Id == user.Id && order.Id == id) // Filter by user ID and order ID
                 .Include(order => order.User)
                 .Include(order => order.Items)
-                .ThenInclude(item => item.Habit.Id)
-                .Include(item => item.TotalPoints)
-                .FirstOrDefaultAsync(order => order.Id == id);
+                .ThenInclude(item => item.Habit)
+                .FirstOrDefaultAsync();
         }
-
 
         public async Task<int> GetTotalOrdersForUserAsync(User user)
         {
             // Return the total number of orders for the specified user
             return await _context.Orders
-                .Where(order => order.User.Id == user.Id)
+                .Where(order => order.User.Id == user.Id) // Filter by user ID
                 .CountAsync();
         }
-
-
-
-
-
     }
 }

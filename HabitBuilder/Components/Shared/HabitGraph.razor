@@ -3,6 +3,7 @@
 @using ApexCharts
 @using Microsoft.AspNetCore.Components.Authorization
 @inject UserProvider UserProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject HabitOrderProvider HabitOrderProvider
 
 <h3>HabitGraph</h3>
@@ -14,12 +15,16 @@
 </div>
 
 @code {
+    private User user;
     private IEnumerable<HabitOrder>? orders;
     private List<MyData> Data { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        orders = await HabitOrderProvider.GetAllOrdersAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var username = authState!.User!.Identity!.Name!;
+        user = UserProvider.GetUserByUsername(username)!;
+        orders = await HabitOrderProvider.GetAllOrdersAsync(user);
         CalculateTotalPoints();
     }
 

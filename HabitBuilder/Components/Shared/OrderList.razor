@@ -1,8 +1,11 @@
 ﻿@rendermode InteractiveServer
 @using HabitBuilder.Context
 @using HabitBuilder.Model
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.EntityFrameworkCore
+@inject UserProvider UserProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject HabitOrderProvider HabitOrderProvider
 @inject NavigationManager NavigationManager
 
@@ -47,12 +50,15 @@ else
 
 
     public IQueryable<HabitOrder>? Orders { get; set; }
-
+    private User user;
 
 
     protected override async Task OnInitializedAsync()
     {
-        Orders = HabitOrderProvider.GetAllOrders();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var username = authState!.User!.Identity!.Name!;
+        user = UserProvider.GetUserByUsername(username)!;
+        Orders = HabitOrderProvider.GetAllOrders(user);
     }
 
 
