@@ -1,13 +1,11 @@
 ﻿@page "/"
+@using HabitBuilder.Context
 @using HabitBuilder.Model
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserProvider UserProvider
 
 <PageTitle>Home</PageTitle>
-
-<h1>Hello, world!</h1>
-
-<h3>Habit Builder</h3>
 
 @if (user == null)
 {
@@ -27,17 +25,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var isAuthenticated = authState.User?.Identity?.IsAuthenticated == true;
+        var username = authState!.User!.Identity!.Name!;
+        user = UserProvider.GetUserByUsername(username)!;
 
-        if (isAuthenticated)
-        {
-            // Assuming you have a way to retrieve the user details
-            // Here, you could fetch the user details based on the username or other info
-            user = new User
-                {
-                    UserName = authState.User.Identity.Name
-                    // Set other properties if needed
-                };
-        }
     }
 }
