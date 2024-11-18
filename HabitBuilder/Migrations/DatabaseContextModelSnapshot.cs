@@ -160,6 +160,12 @@ namespace HabitBuilder.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("FirstName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("INTEGER");
 
@@ -344,9 +350,11 @@ namespace HabitBuilder.Migrations
 
             modelBuilder.Entity("HabitBuilder.Model.Habit", b =>
                 {
-                    b.HasOne("HabitBuilder.Model.User", null)
+                    b.HasOne("HabitBuilder.Model.User", "User")
                         .WithMany("Habits")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HabitBuilder.Model.HabitOrder", b =>

@@ -26,7 +26,7 @@ namespace HabitBuilder.Model
 
      public bool IsChecked { get; set; }
 
-    
+    public User User { get; set; } 
 
     }
 }

@@ -15,20 +15,20 @@
 </div>
 
 @code {
-    private User user;
-    private IEnumerable<HabitOrder>? orders;
-    private List<MyData> Data { get; set; } = new();
+    private User user;   // stores the user id that can be passed to retrieve specific logs
+    private IEnumerable<HabitOrder>? orders; // Enumerable list that can used to iterate through orders
+    private List<MyData> Data { get; set; } = new(); 
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()  //This method sets the variables defined previously and calls the method to calculate points
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync(); 
         var username = authState!.User!.Identity!.Name!;
-        user = UserProvider.GetUserByUsername(username)!;
-        orders = await HabitOrderProvider.GetAllOrdersAsync(user);
-        CalculateTotalPoints();
+        user = UserProvider.GetUserByUsername(username)!; 
+        orders = await HabitOrderProvider.GetAllOrdersAsync(user); // Retrieves all habit logs related to user
+        CalculateTotalPoints(); // calls the method which calculates points for the graph
     }
 
-    private void CalculateTotalPoints()
+    private void CalculateTotalPoints() //Iterates through all the orders counting up the total points for each day
     {
         if (orders != null)
         {

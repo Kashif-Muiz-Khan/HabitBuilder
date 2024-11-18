@@ -1,15 +1,16 @@
 ﻿@using HabitBuilder.Context
 @using HabitBuilder.Model
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.EntityFrameworkCore
 @rendermode InteractiveServer
 @inject HabitProvider HabitProvider
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserProvider UserProvider
 
 
 
-
-
-
+<!-- Habit Form -->
 
     <div class="card">
         <div class="card-body bg-light">
@@ -18,6 +19,9 @@
             </h4>
             <EditForm OnValidSubmit="Submit" EditContext="editContext">
                 <DataAnnotationsValidator />
+
+            <!-- Habit Form allowing the user to input required Habit Details -->
+
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label for="name" class="form-label">Name</label>
@@ -78,11 +82,23 @@
     }
     private Habit model;
     private EditContext editContext;
+    private User user;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load user and habits.
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var username = authState.User.Identity.Name;
+        user = UserProvider.GetUserByUsername(username);
+    }
 
     private async Task Submit()
     {
+        model.User = user;
+
         if (Model.Id == 0)
-            HabitProvider.AddHabitAsync(Model);
+        HabitProvider.AddHabitAsync(Model);
         else
             HabitProvider.UpdateHabitAsync(Model);
 

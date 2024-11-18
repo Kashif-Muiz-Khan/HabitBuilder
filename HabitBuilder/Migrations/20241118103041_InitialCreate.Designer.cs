@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HabitBuilder.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20241018130643_InitialCreate")]
+    [Migration("20241118103041_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -162,6 +162,12 @@ namespace HabitBuilder.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("INTEGER");
@@ -347,9 +353,11 @@ namespace HabitBuilder.Migrations
 
             modelBuilder.Entity("HabitBuilder.Model.Habit", b =>
                 {
-                    b.HasOne("HabitBuilder.Model.User", null)
+                    b.HasOne("HabitBuilder.Model.User", "User")
                         .WithMany("Habits")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HabitBuilder.Model.HabitOrder", b =>

@@ -5,17 +5,19 @@
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 
+@* Inject necessary services for login functionality and navigation *@
 @inject SignInManager<User> SignInManager
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
 <PageTitle>Log in</PageTitle>
-<StatusMessage Message="@statusMessage" IsError="@isError" />
+<StatusMessage Message="@statusMessage" IsError="@isError" /> <!-- Display status messages -->
 
 <div class="card">
     <div class="card-body bg-light">
         <h4 class="card-title">Login</h4>
+        <!-- Login form with email and password fields -->
         <EditForm OnValidSubmit="LoginUser" Model="Model" FormName="loginForm">
             <div class="row g-3">
                 <div class="col-md-6">
@@ -28,7 +30,6 @@
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">Login</button>
-
                 </div>
                 <div class="col-md-2">
                     <a href="@(NavigationManager.ToAbsoluteUri("Account/Register"))" class="btn btn-success w-100">Register</a>
@@ -39,8 +40,8 @@
 </div>
 
 @code {
-    private string? statusMessage;
-    private bool isError;
+    private string? statusMessage; // Message shown to user
+    private bool isError; // Flag for error status
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -55,32 +56,31 @@
     {
         if (HttpMethods.IsGet(HttpContext.Request.Method))
         {
-            // Clear the existing external cookie to ensure a clean login process
+            // Clear any existing cookies for a fresh login
             await HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
         }
     }
 
     public async Task LoginUser()
     {
-        // This doesn't count login failures towards account lockout
-        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+        // Attempt login; no account lockout on failure
         var result = await SignInManager.PasswordSignInAsync(Model.Email, Model.Password, false, lockoutOnFailure: false);
         if (result.Succeeded)
         {
             Logger.LogInformation("User logged in.");
-            RedirectManager.RedirectTo(ReturnUrl);
+            RedirectManager.RedirectTo(ReturnUrl); // Redirect on successful login
         }
         else
         {
-            statusMessage = "Invalid login attempt.";
+            statusMessage = "Invalid login attempt."; // Show error message
             isError = true;
         }
     }
 
+    // Login model to store email and password
     private sealed class LoginModel
     {
         public string Email { get; set; } = "";
-
         public string Password { get; set; } = "";
     }
 }

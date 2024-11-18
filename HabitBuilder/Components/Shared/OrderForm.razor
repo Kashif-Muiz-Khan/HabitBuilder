@@ -3,11 +3,12 @@
 @using HabitBuilder.Model
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
-@inject UserProvider UserProvider
-@inject HabitOrderProvider HabitOrderProvider
-@inject HabitProvider HabitProvider
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject NavigationManager NavigationManager
+
+@inject UserProvider UserProvider // User data and actions.
+@inject HabitOrderProvider HabitOrderProvider // Habit order handling.
+@inject HabitProvider HabitProvider // Habit data handling.
+@inject AuthenticationStateProvider AuthenticationStateProvider // Authentication state management.
+@inject NavigationManager NavigationManager // Navigation control.
 
 <div class="container">
     <div class="row justify-content-center">
@@ -15,21 +16,24 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">Habit Order</h4>
+                    <!-- Habit order form -->
                     <EditForm OnValidSubmit="Submit" Model="new object()" FormName="HabitOrderForm">
-                        <DataAnnotationsValidator />
+                        <DataAnnotationsValidator /> <!-- Validation support -->
+
                         <div class="row g-3">
                             <div class="col-md-12">
+                                <!-- Habit checkboxes -->
                                 @foreach (Habit habit in Habits)
                                 {
                                     <div class="form-check">
                                         <InputCheckbox class="form-check-input" @bind-Value="habit.IsChecked" id="@($"habit_{habit.Id}")" />
-                                        <label class="form-check-label" for="@($"habit_{habit.Id}")">
-                                            @habit.Name
-                                        </label>
+                                        <label class="form-check-label" for="@($"habit_{habit.Id}")">@habit.Name</label>
                                     </div>
                                 }
                             </div>
                         </div>
+
+                        <!-- Submit button -->
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </EditForm>
                 </div>
@@ -39,22 +43,25 @@
 </div>
 
 @code {
-    private IQueryable<Habit> Habits { get; set; }
-    private User user;
+    private IQueryable<Habit> Habits { get; set; } // List of habits.
+    private User user; // Authenticated user.
 
     protected override async Task OnInitializedAsync()
     {
+        // Load user and habits.
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var username = authState!.User!.Identity!.Name!;
-        user = UserProvider.GetUserByUsername(username)!;
+        var username = authState.User.Identity.Name; 
+        user = UserProvider.GetUserByUsername(username); 
         Habits = (await HabitProvider.GetAllHabitsAsync()).AsQueryable();
     }
 
     private async Task Submit()
     {
+        // Process selected habits.
         var selectedHabits = Habits.Where(h => h.IsChecked).ToList();
-        await HabitOrderProvider.CreateOrder(user, selectedHabits.Select(habit => new HabitOrderItem { Habit = habit }).ToList());
-        StateHasChanged();
-        NavigationManager.NavigateTo("/", true);
+        await HabitOrderProvider.CreateOrder(user, selectedHabits.Select(h => new HabitOrderItem { Habit = h }).ToList());
+
+        StateHasChanged(); // Notify state change.
+        NavigationManager.NavigateTo("/", true); // Redirect after submission.
     }
 }

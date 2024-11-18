@@ -12,23 +12,27 @@ namespace HabitBuilder.Context
             _context = context;
         }
 
+        //Retrieves all the Habits
         public async Task<List<Habit>> GetAllHabitsAsync()
         {
             return await _context.Habits.OrderBy(habits => habits.Name).ToListAsync();
         }
 
+        // Adds the Habits to the Database
         public async Task AddHabitAsync(Habit habits)
         {
             _context.Habits.Add(habits);
             await _context.SaveChangesAsync();
         }
 
+        //Deletes Habits from the Database
         public async Task DeleteHabitAsync(Habit habits)
         {
             _context.Habits.Remove(habits);
             await _context.SaveChangesAsync();
         }
 
+        //Upadtes Habits
         public async Task UpdateHabitAsync(Habit habits)
         {
             _context.Habits.Update(habits);
