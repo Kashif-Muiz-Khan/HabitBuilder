@@ -96,9 +96,23 @@
         var selectedHabits = Habits.Where(h => h.IsChecked).ToList();
 
         // Create the new habit order with the selected date
-        await HabitOrderProvider.CreateOrder(user,
-            selectedHabits.Select(h => new HabitOrderItem { Habit = h }).ToList(),
-            selectedDateOnly);
+        if (None)
+        {
+            // Create the new habit order with 0 points if "None" is selected
+            await HabitOrderProvider.CreateOrder(user,
+                new List<HabitOrderItem>(), // No habits selected
+                selectedDateOnly,
+                0); // Total points set to 0
+        }
+        else
+        {
+            // Create the new habit order with selected habits and calculated points
+            await HabitOrderProvider.CreateOrder(user,
+                selectedHabits.Select(h => new HabitOrderItem { Habit = h }).ToList(),
+                selectedDateOnly,
+                selectedHabits.Sum(h => h.Point)); // Sum of points from selected habits
+        }
+
 
         StateHasChanged(); // Notify state change
         NavigationManager.NavigateTo("/", true); // Redirect after submission

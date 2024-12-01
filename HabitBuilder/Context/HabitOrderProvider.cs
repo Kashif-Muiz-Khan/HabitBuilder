@@ -50,19 +50,20 @@ public class HabitOrderProvider
         await _context.SaveChangesAsync();
     }
 
-     public async Task CreateOrder(User user, IEnumerable<HabitOrderItem> items, DateOnly selectedDate)
+        public async Task CreateOrder(User user, List<HabitOrderItem> items, DateOnly day, int totalPoints)
         {
             var order = new HabitOrder
             {
                 User = user,
-                Items = items.ToList(),
-                Day = selectedDate, // Use the selected date
-                TotalPoints = items.Sum(item => item.Habit.Point)
+                Items = items,
+                Day = day,
+                TotalPoints = totalPoints
             };
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
         }
+
 
 
         // Deletes a specified order
