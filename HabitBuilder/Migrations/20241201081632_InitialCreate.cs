@@ -186,8 +186,8 @@ namespace HabitBuilder.Migrations
                     Type = table.Column<string>(type: "TEXT", nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: false),
                     Frequency = table.Column<int>(type: "INTEGER", nullable: false),
-                    Point = table.Column<int>(type: "INTEGER", nullable: false),
-                    Difficulty = table.Column<string>(type: "TEXT", nullable: false),
+                    Target = table.Column<int>(type: "INTEGER", nullable: false),
+                    Difficulty = table.Column<int>(type: "INTEGER", nullable: false),
                     IsChecked = table.Column<bool>(type: "INTEGER", nullable: false),
                     UserId = table.Column<string>(type: "TEXT", nullable: true)
                 },

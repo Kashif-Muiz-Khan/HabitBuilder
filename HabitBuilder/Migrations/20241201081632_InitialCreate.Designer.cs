@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HabitBuilder.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20241118103041_InitialCreate")]
+    [Migration("20241201081632_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -46,9 +46,8 @@ namespace HabitBuilder.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Difficulty")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Difficulty")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Frequency")
                         .HasColumnType("INTEGER");
@@ -60,7 +59,7 @@ namespace HabitBuilder.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Point")
+                    b.Property<int>("Target")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Type")

@@ -15,19 +15,44 @@ namespace HabitBuilder.Model
     [Required(ErrorMessage = "Please enter the Description")]
     public string Description { get; set; }
 
-    [Required(ErrorMessage ="Please enter the frequency")]
-    public int Frequency { get; set; }
+    [Required(ErrorMessage ="Please choose the frequency")]
+    public FrequencyLevel Frequency { get; set; }
 
-    [Required(ErrorMessage = "Please enter the Point")]
-    public int Point { get; set; }
+    [Required(ErrorMessage = "Please choose the target ")]
+    public int Target {  get; set; }
 
-    [Required(ErrorMessage = "Please enter the difficulty")]
-    public string Difficulty { get; set; }
+    [Required(ErrorMessage = "Please choose the difficulty")]
+        public int Point => (int)Difficulty;
+
+    [Required(ErrorMessage = "Please choose the difficulty")]
+    public DifficultyLevel Difficulty { get; set; }
 
      public bool IsChecked { get; set; }
 
     public User User { get; set; } 
 
     }
+
+
+    public enum DifficultyLevel
+    {
+        VeryEasy = 2,
+        Easy = 5,
+        Medium = 8,
+        Hard = 12,
+        VeryHard = 16,
+        Impossible = 25
+    }
+
+    public enum FrequencyLevel
+    {
+        Daily,
+        Weekly,
+        Monthly,
+        Quarterly,
+        Yearly
+
+    }
+
 }
 
