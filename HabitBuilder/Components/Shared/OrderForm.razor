@@ -1,4 +1,4 @@
-﻿@using System.ComponentModel.DataAnnotations
+﻿﻿@using System.ComponentModel.DataAnnotations
 @using HabitBuilder.Context
 @using HabitBuilder.Model
 @using Microsoft.AspNetCore.Components.Authorization
@@ -10,6 +10,7 @@
 @inject HabitProvider HabitProvider // Habit data handling.
 @inject AuthenticationStateProvider AuthenticationStateProvider // Authentication state management.
 @inject NavigationManager NavigationManager // Navigation control.
+@inject ISnackbar Snackbar
 
 <div class="container">
     <div class="row justify-content-center">
@@ -23,9 +24,9 @@
                     <div class="row g-3">
                         <div class="col-md-12">
                             <MudDatePicker Label="Select Date"
-                             @bind-Date="_selectedDate"
-                             MaxDate="DateTime.Today"
-                             ShowToolbar="false" />
+                                           @bind-Date="_selectedDate"
+                                           MaxDate="DateTime.Today"
+                                           ShowToolbar="false" />
                         </div>
                     </div>
 
@@ -33,11 +34,11 @@
                     <EditForm OnValidSubmit="Submit" Model="new object()" FormName="HabitOrderForm">
                         <DataAnnotationsValidator /> <!-- Validation support -->
                         <!-- Habit Checkboxes -->
-                        
+
                         <div class="row g-3">
                             <div class="col-md-12">
                                 <div class="form-check">
-                                    <InputCheckbox class="form-check-input" @bind-Value="None"/>
+                                    <InputCheckbox class="form-check-input" @bind-Value="None" />
                                     <label class="form-check-label">None</label>
                                 </div>
                                 @if (!None)
@@ -65,10 +66,10 @@
 
 @code {
     private IQueryable<Habit> Habits { get; set; } // List of habits.
-    private User user; // Authenticated user. 
+    private User user; // Authenticated user.
     private bool None;
 
-    [Required(ErrorMessage ="Please select a valid date")]
+    [Required(ErrorMessage = "Please select a valid date")]
     private DateTime? _selectedDate = DateTime.Today; // Default to today.
 
     protected override async Task OnInitializedAsync()
@@ -82,7 +83,11 @@
 
     private async Task Submit()
     {
-
+        if (_selectedDate == null)
+        {
+            Snackbar.Add("Please select a valid date.", Severity.Warning);
+            return;
+        }
 
         // Convert _selectedDate to DateOnly for consistency
         var selectedDateOnly = DateOnly.FromDateTime(_selectedDate.Value.Date);
@@ -95,6 +100,12 @@
         // Get selected habits
         var selectedHabits = Habits.Where(h => h.IsChecked).ToList();
 
+        if (existingOrder != null)
+        {
+            Snackbar.Add("A log already exists for this date. Please edit the existing log.", Severity.Warning);
+            return;
+        }
+
         // Create the new habit order with the selected date
         if (None)
         {
@@ -103,6 +114,7 @@
                 new List<HabitOrderItem>(), // No habits selected
                 selectedDateOnly,
                 0); // Total points set to 0
+            Snackbar.Add("Log added successfully.", Severity.Success);
         }
         else
         {
@@ -111,6 +123,7 @@
                 selectedHabits.Select(h => new HabitOrderItem { Habit = h }).ToList(),
                 selectedDateOnly,
                 selectedHabits.Sum(h => h.Point)); // Sum of points from selected habits
+            Snackbar.Add("Log added successfully.", Severity.Success);
         }
 
 

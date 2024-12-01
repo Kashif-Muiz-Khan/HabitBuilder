@@ -27,9 +27,6 @@ else
             <PropertyColumn Property="@(p => p.Day)" Sortable="true" />
             <PropertyColumn Property="@(p => p.TotalPoints)" Sortable="true" />
             <PropertyColumn Property="@(p => p.Items.Count)" Sortable="true" />
-            <TemplateColumn Title="Edit">
-                <button class="btn btn-success" @onclick="() => Edit(context)">Edit</button>
-            </TemplateColumn>
             <TemplateColumn Title="Delete">
                 <button class="btn btn-danger" @onclick="() => Delete(context)">Delete</button>
             </TemplateColumn>

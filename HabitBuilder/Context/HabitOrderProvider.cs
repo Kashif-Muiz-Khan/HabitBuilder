@@ -64,6 +64,20 @@ public class HabitOrderProvider
             await _context.SaveChangesAsync();
         }
 
+        public async Task CreateOrder(User user, IEnumerable<HabitOrderItem> items, DateOnly selectedDate)
+        {
+            var order = new HabitOrder
+            {
+                User = user,
+                Items = items.ToList(),
+                Day = selectedDate, // Use the selected date
+                TotalPoints = items.Sum(item => item.Habit.Point)
+            };
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+        }
+
 
 
         // Deletes a specified order
@@ -79,5 +93,17 @@ public class HabitOrderProvider
         _context.Orders.Update(order);
         await _context.SaveChangesAsync();
     }
-}
+
+
+        public async Task<HabitOrder?> GetOrderByDateAsync(User user, DateOnly date)
+        {
+            return await _context.Orders
+                .Where(order => order.User.Id == user.Id && order.Day == date)
+                .Include(order => order.Items)
+                .ThenInclude(item => item.Habit)
+                .FirstOrDefaultAsync();
+        }
+
+
+    }
 }
