@@ -5,6 +5,7 @@ using HabitBuilder.Components;
 using HabitBuilder.Context;
 using HabitBuilder.Model;
 using ApexCharts;
+using MudBlazor.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,6 +38,12 @@ builder.Services.AddScoped<QuoteProvider>();
 builder.Services.AddScoped<UserProvider>();
 builder.Services.AddScoped<ReviewProvider>();
 builder.Services.AddQuickGridEntityFrameworkAdapter();
+
+
+
+
+builder.Services.AddMudServices();
+
 
 
 

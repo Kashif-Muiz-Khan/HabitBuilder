@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
 @inherits LayoutComponentBase
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -50,5 +51,16 @@
 <main class="container">
     <div class="p-2 rounded">
         @Body
+        @* Required *@
+<MudThemeProvider />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
     </div>
 </main>
+
+

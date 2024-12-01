@@ -33,9 +33,6 @@ else
             <TemplateColumn Title="Delete">
                 <button class="btn btn-danger" @onclick="() => Delete(context)">Delete</button>
             </TemplateColumn>
-            <TemplateColumn Title="Info">
-                <button class="btn btn-primary" @onclick="() => ShowInfo(context)">Info</button>
-            </TemplateColumn>
         </QuickGrid>
         <Paginator State="@pagination" />
     </div>
@@ -64,10 +61,7 @@ else
 
 
 
-    private void ShowInfo(HabitOrder order)
-    {
-        NavigationManager.NavigateTo($"/Info/{order.Id}");
-    }
+
 
     private async void Edit(HabitOrder order)
     {

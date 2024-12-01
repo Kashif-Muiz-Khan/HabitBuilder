@@ -3,6 +3,7 @@
 @using HabitBuilder.Model
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
 
 @inject UserProvider UserProvider // User data and actions.
 @inject HabitOrderProvider HabitOrderProvider // Habit order handling.
@@ -16,24 +17,44 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">Habit Order</h4>
+
+
+                    <!-- Date Picker -->
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <MudDatePicker Label="Select Date"
+                             @bind-Date="_selectedDate"
+                             MaxDate="DateTime.Today"
+                             ShowToolbar="false" />
+                        </div>
+                    </div>
+
                     <!-- Habit order form -->
                     <EditForm OnValidSubmit="Submit" Model="new object()" FormName="HabitOrderForm">
                         <DataAnnotationsValidator /> <!-- Validation support -->
-
+                        <!-- Habit Checkboxes -->
+                        
                         <div class="row g-3">
                             <div class="col-md-12">
-                                <!-- Habit checkboxes -->
-                                @foreach (Habit habit in Habits)
+                                <div class="form-check">
+                                    <InputCheckbox class="form-check-input" @bind-Value="None"/>
+                                    <label class="form-check-label">None</label>
+                                </div>
+                                @if (!None)
                                 {
-                                    <div class="form-check">
-                                        <InputCheckbox class="form-check-input" @bind-Value="habit.IsChecked" id="@($"habit_{habit.Id}")" />
-                                        <label class="form-check-label" for="@($"habit_{habit.Id}")">@habit.Name</label>
-                                    </div>
+                                    @foreach (Habit habit in Habits)
+                                    {
+                                        <div class="form-check">
+                                            <InputCheckbox class="form-check-input" @bind-Value="habit.IsChecked" id="@($"habit_{habit.Id}")" />
+                                            <label class="form-check-label" for="@($"habit_{habit.Id}")">@habit.Name</label>
+                                        </div>
+                                    }
                                 }
                             </div>
                         </div>
 
-                        <!-- Submit button -->
+
+                        <!-- Submit Button -->
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </EditForm>
                 </div>
@@ -44,24 +65,43 @@
 
 @code {
     private IQueryable<Habit> Habits { get; set; } // List of habits.
-    private User user; // Authenticated user.
+    private User user; // Authenticated user. 
+    private bool None;
+
+    [Required(ErrorMessage ="Please select a valid date")]
+    private DateTime? _selectedDate = DateTime.Today; // Default to today.
 
     protected override async Task OnInitializedAsync()
     {
         // Load user and habits.
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var username = authState.User.Identity.Name; 
-        user = UserProvider.GetUserByUsername(username); 
+        var username = authState.User.Identity.Name;
+        user = UserProvider.GetUserByUsername(username);
         Habits = (await HabitProvider.GetAllHabitsAsync()).AsQueryable();
     }
 
     private async Task Submit()
     {
-        // Process selected habits.
-        var selectedHabits = Habits.Where(h => h.IsChecked).ToList();
-        await HabitOrderProvider.CreateOrder(user, selectedHabits.Select(h => new HabitOrderItem { Habit = h }).ToList());
 
-        StateHasChanged(); // Notify state change.
-        NavigationManager.NavigateTo("/", true); // Redirect after submission.
+
+        // Convert _selectedDate to DateOnly for consistency
+        var selectedDateOnly = DateOnly.FromDateTime(_selectedDate.Value.Date);
+
+        // Check if an order already exists for the selected date
+        var existingOrder = (await HabitOrderProvider.GetAllOrdersAsync(user))
+            ?.FirstOrDefault(order => order.Day == selectedDateOnly);
+
+
+        // Get selected habits
+        var selectedHabits = Habits.Where(h => h.IsChecked).ToList();
+
+        // Create the new habit order with the selected date
+        await HabitOrderProvider.CreateOrder(user,
+            selectedHabits.Select(h => new HabitOrderItem { Habit = h }).ToList(),
+            selectedDateOnly);
+
+        StateHasChanged(); // Notify state change
+        NavigationManager.NavigateTo("/", true); // Redirect after submission
     }
+
 }
