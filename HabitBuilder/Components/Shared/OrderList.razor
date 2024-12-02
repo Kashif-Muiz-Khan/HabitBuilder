@@ -5,15 +5,10 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.EntityFrameworkCore
 @inject UserProvider UserProvider
+@inject HabitProvider HabitProvider
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject HabitOrderProvider HabitOrderProvider
 @inject NavigationManager NavigationManager
-
-
-
-
-
-
 
 @if (Orders == null)
 {
@@ -27,25 +22,56 @@ else
             <PropertyColumn Property="@(p => p.Day)" Sortable="true" />
             <PropertyColumn Property="@(p => p.TotalPoints)" Sortable="true" />
             <PropertyColumn Property="@(p => p.Items.Count)" Sortable="true" />
-            <TemplateColumn Title="Delete">
-                <button class="btn btn-danger" @onclick="() => Delete(context)">Delete</button>
+            <TemplateColumn Title="Actions">
+                <button class="btn btn-primary" @onclick="() => Edit(context)">Edit</button>
+                <button class="btn btn-danger ms-2" @onclick="() => Delete(context)">Delete</button>
             </TemplateColumn>
         </QuickGrid>
         <Paginator State="@pagination" />
     </div>
 }
 
+@if (SelectedOrder != null)
+{
+    <div class="mt-4">
+        <h4>Edit Log for: @SelectedOrder.Day.ToString("MMMM dd, yyyy")</h4>
+        <EditForm EditContext="@editContext" OnValidSubmit="SaveChanges">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-check mb-3">
+                <InputCheckbox class="form-check-input" @bind-Value="None" @onchange="OnNoneSelectedChange" />
+                <label class="form-check-label">None</label>
+            </div>
+
+            @if (!None)
+            {
+                <div>
+                    @foreach (var habit in Habits)
+                    {
+                        <div class="form-check">
+                            <InputCheckbox class="form-check-input" @bind-Value="habit.IsChecked" />
+                            <label class="form-check-label">@habit.Name</label>
+                        </div>
+                    }
+                </div>
+            }
+
+            <button type="submit" class="btn btn-success mt-3">Save Changes</button>
+            <button type="button" class="btn btn-secondary mt-3" @onclick="CancelEdit">Cancel</button>
+        </EditForm>
+    </div>
+}
+
 @code {
-
-
-
     private PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private string nameSearch;
-
-
+    private HabitOrder? SelectedOrder;
     public IQueryable<HabitOrder>? Orders { get; set; }
     private User user;
-
+    private IQueryable<Habit> Habits = Enumerable.Empty<Habit>().AsQueryable();
+    private EditContext? editContext;
+    private bool None;
 
     protected override async Task OnInitializedAsync()
     {
@@ -53,23 +79,73 @@ else
         var username = authState!.User!.Identity!.Name!;
         user = UserProvider.GetUserByUsername(username)!;
         Orders = HabitOrderProvider.GetAllOrders(user);
+        Habits = (await HabitProvider.GetAllHabitsAsync()).AsQueryable();
     }
 
-
-
-
-
-
-    private async void Edit(HabitOrder order)
+    private void Edit(HabitOrder order)
     {
-        await HabitOrderProvider.UpdateOrderAsync(order);
-    }
+        // Set the selected order for editing
+        SelectedOrder = order;
 
+        // Update the habit list with the current state of the selected order
+        foreach (var habit in Habits)
+        {
+            habit.IsChecked = SelectedOrder.Items.Any(item => item.Habit.Id == habit.Id);
+        }
+
+        // Mark "None" as selected if no habits are part of the selected order
+        None = !SelectedOrder.Items.Any();
+
+        // Create or update the EditContext for the selected order
+        editContext = new EditContext(SelectedOrder);
+
+        StateHasChanged(); // Notify UI to refresh
+    }
 
     private async Task Delete(HabitOrder order)
     {
         await HabitOrderProvider.DeleteOrder(order);
+        SelectedOrder = null; // Reset selection
+        Orders = HabitOrderProvider.GetAllOrders(user); // Refresh orders
         StateHasChanged();
-        NavigationManager.NavigateTo("/order", true);
     }
-} 
+
+    private async Task SaveChanges()
+    {
+        if (SelectedOrder == null)
+        {
+            return;
+        }
+
+        // Update the selected order with the current habit selection
+        SelectedOrder.Items = Habits.Where(h => h.IsChecked)
+                                    .Select(h => new HabitOrderItem { Habit = h })
+                                    .ToList();
+        SelectedOrder.TotalPoints = SelectedOrder.Items.Sum(item => item.Habit.Point);
+
+        // Save changes to the database
+        await HabitOrderProvider.UpdateOrderAsync(SelectedOrder);
+
+        // Refresh the orders list and clear the edit selection
+        Orders = HabitOrderProvider.GetAllOrders(user);
+        SelectedOrder = null;
+        StateHasChanged();
+    }
+
+    private void CancelEdit()
+    {
+        SelectedOrder = null; // Clear selection
+        StateHasChanged(); // Refresh UI
+    }
+
+    private void OnNoneSelectedChange(ChangeEventArgs e)
+    {
+        if (None)
+        {
+            foreach (var habit in Habits)
+            {
+                habit.IsChecked = false;
+            }
+        }
+    }
+}
