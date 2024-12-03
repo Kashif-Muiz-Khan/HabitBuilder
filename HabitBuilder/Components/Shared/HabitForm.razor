@@ -27,13 +27,16 @@
                 <div class="col-md-3">
                     <label for="type" class="form-label">Type</label>
                     <InputText class="form-control" placeholder="Type" @bind-Value="model.Type" />
-                    <ValidationMessage For="@(() => model.Type)" />
+                    <ValidationMessage For="@(() => model.Type)" /> <!-- Binds the input to model to be used later when saving to database-->
                 </div>
                 <div class="col-md-3">
                     <label for="description" class="form-label">Description</label>
                     <InputText class="form-control" placeholder="Description" @bind-Value="model.Description" />
                     <ValidationMessage For="@(() => model.Description)" />
                 </div>
+
+                <!-- Displays the predefined list of frequency's from the user to choose from -->
+
                 <div class="col-md-3">
                     <label for="frequency" class="form-label">Frequency</label>
                     <InputSelect class="form-control" @bind-Value="model.Frequency">
@@ -49,6 +52,9 @@
                     <InputNumber class="form-control" placeholder="Target (e.g., 3 times)" @bind-Value="model.Target" />
                     <ValidationMessage For="@(() => model.Target)" />
                 </div>
+
+                <!-- Displays the predefined list of difficulty from the user to choose from -->
+
                 <div class="col-md-3">
                     <label for="difficulty" class="form-label">Difficulty</label>
                     <InputSelect class="form-control" @bind-Value="model.Difficulty">
@@ -61,7 +67,7 @@
                 </div>
                 <div class="col-md-12">
                     <button type="submit" class="btn btn-primary float-end">@(model.Id == 0 ? "Add Habit" : "Save Changes")</button>
-                </div>
+                </div> <!-- Displays Add Habit or Save Changes depending on if the user is submitting a new habit or editing a exiting one-->
             </div>
             <div class=" col-md-12">
                 <div class="card">
@@ -98,6 +104,8 @@
             editContext = new(model);
         }
     }
+
+    // defines the model to be used to bind user input, edit context to allow editing and a user varaible to validate user
     private Habit model;
     private EditContext editContext;
     private User user;
@@ -110,6 +118,7 @@
         user = UserProvider.GetUserByUsername(username);
     }
 
+    //saves the user input to the database, if editing a exisiting one, it is updated and then saved
     private async Task Submit()
     {
         model.User = user;

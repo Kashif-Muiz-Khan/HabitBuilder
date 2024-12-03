@@ -27,8 +27,10 @@
                         <div class="col-md-12">
                             <MudDatePicker Label="Select Date"
                                            @bind-Date="_selectedDate"
-                                           MaxDate="DateTime.Today"
+                                           MaxDate="DateTime.Today" 
                                            ShowToolbar="false" />
+
+                            <!-- his prevents the user for submitting logs in the future date -->
                         </div>
                     </div>
 
@@ -40,12 +42,12 @@
                         <div class="row g-3">
                             <div class="col-md-12">
                                 <div class="form-check">
-                                    <InputCheckbox class="form-check-input" @bind-Value="None" />
+                                    <InputCheckbox class="form-check-input" @bind-Value="None" /> @* the none option that would set total points to 0 *@
                                     <label class="form-check-label">None</label>
                                 </div>
-                                @if (!None)
+                                @if (!None) @* if none is not selected displays the habits *@
                                 {
-                                    @foreach (Habit habit in Habits)
+                                    @foreach (Habit habit in Habits) @* iterates over the habits displaying them in checkboxes *@
                                     {
                                         <div class="form-check">
                                             <InputCheckbox class="form-check-input" @bind-Value="habit.IsChecked" id="@($"habit_{habit.Id}")" />

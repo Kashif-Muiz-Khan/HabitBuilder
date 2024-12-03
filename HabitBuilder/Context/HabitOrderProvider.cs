@@ -35,8 +35,20 @@ public class HabitOrderProvider
             .OrderBy(order => order.Id);
     }
 
-    // Creates a new order for a user with the specified items
-    public async Task CreateOrder(User user, IEnumerable<HabitOrderItem> items)
+        // Retrieves all the orders sorted by date to be used for plotting graph
+        public async Task<List<HabitOrder>?> GetAllOrdersGraphAsync(User user)
+        {
+            return await _context.Orders
+                .Where(order => order.User.Id == user.Id)
+                .Include(order => order.User)
+                .Include(order => order.Items)
+                .ThenInclude(item => item.Habit)
+                .OrderBy(order => order.Day)
+                .ToListAsync();
+        }
+
+        // Creates a new order for a user with the specified items
+        public async Task CreateOrder(User user, IEnumerable<HabitOrderItem> items)
     {
         var order = new HabitOrder
         {

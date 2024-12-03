@@ -6,7 +6,7 @@ namespace HabitBuilder.Model
     {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Please enter the Name")]
+    [Required(ErrorMessage = "Please enter the Name")] // Adds validation ensuring this is not null when saved to database
     public string Name { get; set; }
 
     [Required(ErrorMessage = "Please enter the Type")]
@@ -16,13 +16,13 @@ namespace HabitBuilder.Model
     public string Description { get; set; }
 
     [Required(ErrorMessage ="Please choose the frequency")]
-    public FrequencyLevel Frequency { get; set; }
+    public FrequencyLevel Frequency { get; set; } // Frequency has to be of type frequency which is the list of predefined frequencies
 
     [Required(ErrorMessage = "Please choose the target ")]
     public int Target {  get; set; }
 
     [Required(ErrorMessage = "Please choose the difficulty")]
-        public int Point => (int)Difficulty;
+        public int Point => (int)Difficulty; // The points have to be the associated points of frequencies that are predefined
 
     [Required(ErrorMessage = "Please choose the difficulty")]
     public DifficultyLevel Difficulty { get; set; }
@@ -34,6 +34,7 @@ namespace HabitBuilder.Model
     }
 
 
+    // Predefines the difficulty levels and the associated points
     public enum DifficultyLevel
     {
         VeryEasy = 2,
@@ -44,6 +45,7 @@ namespace HabitBuilder.Model
         Impossible = 25
     }
 
+    //Predefines the frequency levels for the user to choose from
     public enum FrequencyLevel
     {
         Daily,

@@ -34,6 +34,7 @@ else
 
         <!-- Habit QuickGrid -->
         <QuickGrid Theme="habit" Class="table" Items="@FilteredHabit" Pagination="@pagination">
+            <!-- The columns in which the data will be displayed -->
             <PropertyColumn Property="@(p => p.Id)" Title="ID" Sortable="true" />
             <PropertyColumn Property="@(p => p.Name)" Title="Habit Name" Sortable="true" />
             <PropertyColumn Property="@(p => p.Type)" Title="Type" Sortable="true" />
@@ -43,6 +44,8 @@ else
             <PropertyColumn Property="@(p => p.Frequency)" Title="Frequency" Sortable="true" />
             <PropertyColumn Property="@(p => p.Target)" Title="Target" Sortable="true" />
             <TemplateColumn Title="Edit">
+
+            <!-- Buttons that allow the user to edit, delete or see more info about each habit -->
                 <button class="btn btn-success" @onclick="() => Edit(context)">Edit</button>
             </TemplateColumn>
             <TemplateColumn Title="Delete">

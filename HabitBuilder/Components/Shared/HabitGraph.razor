@@ -8,41 +8,63 @@
 
 <h3>HabitGraph</h3>
 
+
+@* Draws the graph componenet with x value being the date and y value being the total points *@
 <div class="card">
-    <ApexChart TItem="MyData" Title="Order Chart">
-        <ApexPointSeries TItem="MyData" Items="Data" Name="Total Points" SeriesType="SeriesType.Area" XValue="e => e.Order" YValue="e => e.Total" />
+    <ApexChart TItem="MyData" Title="Order Chart" Options="options">
+        <ApexPointSeries TItem="MyData" Items="Data"
+                         Name="Total Points"
+                         SeriesType="SeriesType.Area"
+                         XValue="e => e.Order"
+                         YValue="e => e.Total" />
     </ApexChart>
 </div>
 
 @code {
-    private User user;   // stores the user id that can be passed to retrieve specific logs
-    private IEnumerable<HabitOrder>? orders; // Enumerable list that can used to iterate through orders
-    private List<MyData> Data { get; set; } = new(); 
+    private User user; // Stores the user for retrieving specific logs
+    private IEnumerable<HabitOrder>? orders;
+    private List<MyData> Data { get; set; } = new();
+    private ApexChartOptions<MyData> options;
 
-    protected override async Task OnInitializedAsync()  //This method sets the variables defined previously and calls the method to calculate points
+    protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync(); 
+        // Get user and habit orders
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var username = authState!.User!.Identity!.Name!;
-        user = UserProvider.GetUserByUsername(username)!; 
-        orders = await HabitOrderProvider.GetAllOrdersAsync(user); // Retrieves all habit logs related to user
-        CalculateTotalPoints(); // calls the method which calculates points for the graph
+        user = UserProvider.GetUserByUsername(username)!;
+        orders = await HabitOrderProvider.GetAllOrdersAsync(user);
+
+        CalculateTotalPoints(); // Calculate points for the graph
+
+        // Configure chart options with Palette8
+        options = new ApexChartOptions<MyData>
+            {
+                Theme = new Theme
+                {
+                    Mode = Mode.Light, // Light theme
+                    Palette = PaletteType.Palette8 // Apply Palette8
+                }
+            };
     }
 
-    private void CalculateTotalPoints() //Iterates through all the orders counting up the total points for each day
+    private void CalculateTotalPoints()
     {
+        // Iterate through orders and calculate total points per order
         if (orders != null)
         {
-            foreach (var order in orders)
+            var orderedOrder = orders.OrderBy(order => order.Day);
+            foreach (var order in orderedOrder)
             {
                 var totalPoints = order.Items.Sum(item => item.Habit.Point);
-                Data.Add(new MyData { Order = order.Id.ToString(), Total = totalPoints });
+                Data.Add(new MyData { Order = order.Day.ToString(), Total = totalPoints });
             }
         }
     }
 
+    // Class to represent data points for the graph
     public class MyData
     {
-        public string Order { get; set; }
-        public decimal Total { get; set; }
+        public string Order { get; set; } // Order ID as X-axis
+        public decimal Total { get; set; } // Total points as Y-axis
     }
 }
