@@ -129,14 +129,15 @@
         RedirectManager.RedirectTo(ReturnUrl);
     }
 
+    // Register model that will be used to register users
     private sealed class RegisterModel
     {
         [Required(ErrorMessage = "Please enter your email.")]
-        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")] //Adds validation to ensure it is of the correct type and not empty
         public string Email { get; set; } = "";
 
         [Required(ErrorMessage = "Please enter a password.")]
-        [DataType(DataType.Password)]
+        [DataType(DataType.Password)] //Add validation to ensure its of type password and not empty
         public string Password { get; set; } = "";
 
         [Required(ErrorMessage = "Please confirm your password.")]
