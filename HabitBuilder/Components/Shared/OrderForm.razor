@@ -11,6 +11,8 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider // Authentication state management.
 @inject NavigationManager NavigationManager // Navigation control.
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject QuoteProvider QuoteProvider
 
 
 
@@ -68,10 +70,24 @@
     </div>
 </div>
 
+
+
+
+
+
+
 @code {
     private IQueryable<Habit> Habits { get; set; } // List of habits.
     private User user; // Authenticated user.
     private bool None;
+    private Quote? randomQuote;
+
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+
+    private void SubmitM() => MudDialog.Close(DialogResult.Ok(true));
+
+
 
     [Required(ErrorMessage = "Please select a valid date")]
     private DateTime? _selectedDate = DateTime.Today; // Default to today.
@@ -83,6 +99,7 @@
         var username = authState.User.Identity.Name;
         user = UserProvider.GetUserByUsername(username);
         Habits = (await HabitProvider.GetAllHabitsAsync()).AsQueryable();
+        randomQuote = await QuoteProvider.GetRandomQuoteAsync();
     }
 
     private async Task Submit()
@@ -130,9 +147,17 @@
             Snackbar.Add("Log added successfully.", Severity.Success);
         }
 
-
+        await OpenDialogAsync();
         StateHasChanged(); // Notify state change
         NavigationManager.NavigateTo("/", true); // Redirect after submission
+    }
+
+    private async Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = false };
+
+        var dialog = DialogService.Show<QuoteModal>("Dialog Title", options);
+        var result = await dialog.Result;
     }
 
 }

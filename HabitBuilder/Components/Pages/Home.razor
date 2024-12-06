@@ -17,8 +17,13 @@
 else
 {
     <HabitGraph />
+    <br />
     <OrderForm />
     <OrderEditForm/>
+
+
+
+
 }
 
 @code {
@@ -32,4 +37,18 @@ else
         user = UserProvider.GetUserByUsername(username)!;
 
     }
+
+    private bool showModal = false;
+
+    private void ShowModal()
+    {
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
 }
+
+
