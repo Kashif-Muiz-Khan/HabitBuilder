@@ -1,0 +1,70 @@
+﻿@using HabitBuilder.Context
+@using HabitBuilder.Model
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+
+@inject UserProvider UserProvider
+@inject ReviewProvider ReviewProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ISnackbar Snackbar
+
+<h3>Habit Performance Review</h3>
+
+@if (habitPerformances == null)
+{
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+}
+else if (!habitPerformances.Any())
+{
+    <p>You don't have any habits logged yet!</p>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            @foreach (var habit in habitPerformances)
+            {
+                <div class="col-md-4 mb-4 d-flex">
+                    <div class="card flex-fill">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                            <h5 class="card-title text-center">@habit.HabitName</h5>
+                            <p class="card-text">Total Completions: @habit.TotalCompletions</p>
+                            <p class="card-text">Total Points: @habit.TotalPoints</p>
+                            <p class="card-text">Streak: @habit.Streak</p>
+                            <p class="card-text">Missed Count: @habit.MissedCount</p>
+                            <p class="card-text">Required Count: @habit.RequiredCount</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<HabitPerformance> habitPerformances;
+    private User user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var username = authState.User.Identity?.Name;
+
+            if (string.IsNullOrEmpty(username))
+            {
+                Snackbar.Add("User not authenticated.", Severity.Warning);
+                return;
+            }
+
+            user = UserProvider.GetUserByUsername(username);
+            habitPerformances = await ReviewProvider.GetHabitPerformanceAsync(user);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading habit review: {ex.Message}", Severity.Error);
+        }
+    }
+
+}

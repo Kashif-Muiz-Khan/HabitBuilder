@@ -12,7 +12,7 @@ namespace HabitBuilder.Context
             _context = context;
         }
 
-        // Method to get total points for a user across all habit orders
+        // Get total points for a user across all habit orders
         public async Task<int> GetTotalPointsForUserAsync(User user)
         {
             return await _context.Orders
@@ -20,7 +20,7 @@ namespace HabitBuilder.Context
                 .SumAsync(order => order.TotalPoints);
         }
 
-        // Method to get the total number of habits completed by a user
+        // Get total habits completed by a user
         public async Task<int> GetTotalHabitsCompletedAsync(User user)
         {
             return await _context.Orders
@@ -29,10 +29,9 @@ namespace HabitBuilder.Context
                 .CountAsync();
         }
 
-        // Method to get the longest streak for a particular habit
+        // Get the longest streak for a specific habit
         public async Task<int> GetLongestStreakForHabitAsync(User user, int habitId)
         {
-            // Fetch habit orders and sort them by date
             var logs = await _context.Orders
                 .Where(order => order.User.Id == user.Id && order.Items.Any(item => item.Habit.Id == habitId))
                 .OrderBy(order => order.Day)
@@ -41,7 +40,7 @@ namespace HabitBuilder.Context
             return CalculateLongestStreak(logs);
         }
 
-        // Helper method to calculate the longest streak
+        // Helper: Calculate longest streak
         private int CalculateLongestStreak(List<HabitOrder> logs)
         {
             int currentStreak = 0;
@@ -59,22 +58,23 @@ namespace HabitBuilder.Context
                     currentStreak = 1;
                 }
 
-                if (currentStreak > longestStreak)
-                {
-                    longestStreak = currentStreak;
-                }
-
+                longestStreak = Math.Max(longestStreak, currentStreak);
                 lastDate = log.Day;
             }
 
             return longestStreak;
         }
 
-        // Method to get a detailed summary of habit performance for a user
+        // Get habit performance summary for a user
         public async Task<List<HabitPerformance>> GetHabitPerformanceAsync(User user)
         {
-            return await _context.Orders
-                .Where(order => order.User.Id == user.Id)
+            var orders = await _context.Orders
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.Habit)
+                .Where(o => o.User.Id == user.Id)
+                .ToListAsync();
+
+            var habitPerformances = orders
                 .SelectMany(order => order.Items)
                 .GroupBy(item => item.Habit.Id)
                 .Select(group => new HabitPerformance
@@ -82,17 +82,29 @@ namespace HabitBuilder.Context
                     HabitId = group.Key,
                     HabitName = group.First().Habit.Name,
                     TotalCompletions = group.Count(),
-                    TotalPoints = group.Sum(item => item.Habit.Point)
-                }).ToListAsync();
-        }
-    }
+                    TotalPoints = group.Sum(item => item.Habit.Point),
+                    Streak = CalculateStreak(group.ToList()),
+                    MissedCount = group.Count(item => !item.Habit.IsChecked),
+                    RequiredCount = group.First().Habit.Target
+                }).ToList();
 
-    // Class to represent habit performance details
-    public class HabitPerformance
-    {
-        public int HabitId { get; set; }
-        public string HabitName { get; set; }
-        public int TotalCompletions { get; set; }
-        public int TotalPoints { get; set; }
+            return habitPerformances;
+        }
+
+        // Helper method for calculating streaks
+        private int CalculateStreak(List<HabitOrderItem> logs)
+        {
+            logs = logs.OrderByDescending(item => item.Order.Day).ToList();
+            int streak = 0;
+
+            foreach (var log in logs)
+            {
+                if (log.Habit.IsChecked) streak++;
+                else break;
+            }
+
+            return streak;
+        }
+
     }
 }
