@@ -53,6 +53,20 @@ namespace HabitBuilder.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Quotes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    QuoteText = table.Column<string>(type: "TEXT", maxLength: 250, nullable: false),
+                    Author = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Quotes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -159,24 +173,6 @@ namespace HabitBuilder.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FavouriteQuotes",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_FavouriteQuotes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_FavouriteQuotes_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Habits",
                 columns: table => new
                 {
@@ -222,23 +218,28 @@ namespace HabitBuilder.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Quotes",
+                name: "FavouriteQuotes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    QuoteText = table.Column<string>(type: "TEXT", nullable: false),
-                    Author = table.Column<string>(type: "TEXT", nullable: false),
-                    FavouiteQuoteId = table.Column<int>(type: "INTEGER", nullable: true)
+                    UserId = table.Column<string>(type: "TEXT", nullable: true),
+                    QuoteId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Quotes", x => x.Id);
+                    table.PrimaryKey("PK_FavouriteQuotes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Quotes_FavouriteQuotes_FavouiteQuoteId",
-                        column: x => x.FavouiteQuoteId,
-                        principalTable: "FavouriteQuotes",
+                        name: "FK_FavouriteQuotes_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_FavouriteQuotes_Quotes_QuoteId",
+                        column: x => x.QuoteId,
+                        principalTable: "Quotes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -305,6 +306,11 @@ namespace HabitBuilder.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_FavouriteQuotes_QuoteId",
+                table: "FavouriteQuotes",
+                column: "QuoteId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FavouriteQuotes_UserId",
                 table: "FavouriteQuotes",
                 column: "UserId");
@@ -328,11 +334,6 @@ namespace HabitBuilder.Migrations
                 name: "IX_Orders_UserId",
                 table: "Orders",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Quotes_FavouiteQuoteId",
-                table: "Quotes",
-                column: "FavouiteQuoteId");
         }
 
         /// <inheritdoc />
@@ -354,22 +355,22 @@ namespace HabitBuilder.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "FavouriteQuotes");
+
+            migrationBuilder.DropTable(
                 name: "HabitOrderItem");
 
             migrationBuilder.DropTable(
-                name: "Quotes");
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "Quotes");
 
             migrationBuilder.DropTable(
                 name: "Habits");
 
             migrationBuilder.DropTable(
                 name: "Orders");
-
-            migrationBuilder.DropTable(
-                name: "FavouriteQuotes");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

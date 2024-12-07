@@ -1,0 +1,74 @@
+﻿@using HabitBuilder.Context
+@using HabitBuilder.Model
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject QuoteProvider QuoteProvider
+@inject NavigationManager NavigationManager
+@inject UserProvider UserProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>Your Favorite Quotes</h3>
+
+@if (favoriteQuotes == null) // Check if the favorite quotes are still loading
+{
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+    // Display loading spinner
+}
+else if (!favoriteQuotes.Any()) // Check if there are no favorite quotes
+{
+    <p>You haven't added any favorite quotes yet!</p>
+    // Message for empty favorite list
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            @foreach (var quote in favoriteQuotes) // Iterate over favorite quotes
+            {
+                <div class="col-md-4 mb-4 d-flex">
+                    <div class="card flex-fill">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                            <h5 class="card-title text-center">"@quote.QuoteText"</h5> @* Display quote text and author *@
+                            <p class="card-text text-center">@quote.Author</p>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                           Color="Color.Error"
+                                           aria-label="Remove from favorites"
+                                           OnClick="@(() => RemoveFavorite(quote.Id))" /> @* Button to remove quote from favorites *@
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<Quote> favoriteQuotes = new(); // List to store user's favorite quotes
+    private User user; // Current authenticated user
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize and load user and their favorite quotes
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var username = authState.User.Identity.Name;
+        user = UserProvider.GetUserByUsername(username);
+
+        await LoadFavoriteQuotes(); // Fetch favorite quotes
+    }
+
+    private async Task LoadFavoriteQuotes()
+    {
+        // Fetch user's favorite quotes from the provider
+        favoriteQuotes = await QuoteProvider.GetFavoriteQuotesAsync(user);
+    }
+
+    private async Task RemoveFavorite(int quoteId)
+    {
+        // Remove a quote from user's favorites
+        await QuoteProvider.ToggleFavoriteAsync(quoteId, user);
+
+        // Reload favorite quotes and refresh UI
+        await LoadFavoriteQuotes();
+        StateHasChanged();
+    }
+}

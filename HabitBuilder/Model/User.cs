@@ -10,5 +10,7 @@ namespace HabitBuilder.Model
         public List<Habit> Habits { get; set; } = new List<Habit>();
 
         public List<HabitOrder> Orders { get; set; } = [];
+
+        public List<FavouriteQuote> FavouriteQuotes { get; set; } = new List<FavouriteQuote>();
     }
 }

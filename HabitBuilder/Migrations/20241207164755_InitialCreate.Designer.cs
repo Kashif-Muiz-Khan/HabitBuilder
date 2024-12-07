@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HabitBuilder.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20241201081632_InitialCreate")]
+    [Migration("20241207164755_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -26,10 +26,15 @@ namespace HabitBuilder.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("QuoteId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("QuoteId");
 
                     b.HasIndex("UserId");
 
@@ -129,16 +134,12 @@ namespace HabitBuilder.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("FavouiteQuoteId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("QuoteText")
                         .IsRequired()
+                        .HasMaxLength(250)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FavouiteQuoteId");
 
                     b.ToTable("Quotes");
                 });
@@ -343,9 +344,17 @@ namespace HabitBuilder.Migrations
 
             modelBuilder.Entity("HabitBuilder.Model.FavouriteQuote", b =>
                 {
-                    b.HasOne("HabitBuilder.Model.User", "User")
+                    b.HasOne("HabitBuilder.Model.Quote", "Quote")
                         .WithMany()
+                        .HasForeignKey("QuoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HabitBuilder.Model.User", "User")
+                        .WithMany("FavouriteQuotes")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Quote");
 
                     b.Navigation("User");
                 });
@@ -385,15 +394,6 @@ namespace HabitBuilder.Migrations
                     b.Navigation("Habit");
 
                     b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("HabitBuilder.Model.Quote", b =>
-                {
-                    b.HasOne("HabitBuilder.Model.FavouriteQuote", "FavouiteQuote")
-                        .WithMany("Quotes")
-                        .HasForeignKey("FavouiteQuoteId");
-
-                    b.Navigation("FavouiteQuote");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -447,11 +447,6 @@ namespace HabitBuilder.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("HabitBuilder.Model.FavouriteQuote", b =>
-                {
-                    b.Navigation("Quotes");
-                });
-
             modelBuilder.Entity("HabitBuilder.Model.HabitOrder", b =>
                 {
                     b.Navigation("Items");
@@ -459,6 +454,8 @@ namespace HabitBuilder.Migrations
 
             modelBuilder.Entity("HabitBuilder.Model.User", b =>
                 {
+                    b.Navigation("FavouriteQuotes");
+
                     b.Navigation("Habits");
 
                     b.Navigation("Orders");

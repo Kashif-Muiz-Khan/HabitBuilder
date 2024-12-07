@@ -12,6 +12,6 @@ namespace HabitBuilder.Model
 
         [Required(ErrorMessage = "Please enter the Author")]
         public string Author { get; set; }
-        public FavouriteQuote? FavouiteQuote { get; set; } // Links the quote as favourited to a certain user
+
     }
 }

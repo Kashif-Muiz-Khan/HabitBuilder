@@ -39,56 +39,46 @@ namespace HabitBuilder.Context
             await _context.SaveChangesAsync();
         }
 
-        // Optional: Method to get a specific quote by Id
+        // Method to get a specific quote by Id
         public async Task<Quote?> GetQuoteByIdAsync(int id)
         {
             return await _context.Quotes.FirstOrDefaultAsync(q => q.Id == id);
         }
 
-
-
-        public async Task ToggleFavoriteAsync(int quoteId, User userId)
+        // Method to toggle a favorite quote for a user
+        public async Task ToggleFavoriteAsync(int quoteId, User user)
         {
-            // Retrieve the user and their favorite quotes list
-            var favoriteQuote = await _context.FavouriteQuotes
-                .Include(f => f.Quotes)
-                .FirstOrDefaultAsync(f => f.User == userId);
-
-            // Retrieve the quote
+            // Check if the quote exists
             var quote = await _context.Quotes.FirstOrDefaultAsync(q => q.Id == quoteId);
             if (quote == null)
+            {
                 throw new Exception("Quote not found.");
+            }
+
+            // Check if the user already has this quote as a favorite
+            var favoriteQuote = await _context.FavouriteQuotes
+                .FirstOrDefaultAsync(fq => fq.Quote.Id == quoteId && fq.User.Id == user.Id);
 
             if (favoriteQuote == null)
             {
-                // Create a new favorite list for the user if it doesn't exist
-                favoriteQuote = new FavouriteQuote
+                // Add to favorites if not already present
+                var newFavorite = new FavouriteQuote
                 {
-                    User = userId,
-                    
-
+                    User = user,
+                    Quote = quote
                 };
-                _context.FavouriteQuotes.Add(favoriteQuote);
-                await _context.SaveChangesAsync();
-            }
-
-            // Check if the quote is already in the user's favorite list
-            if (favoriteQuote.Quotes.Any(q => q.Id == quoteId))
-            {
-                // Remove the quote if it is already a favorite
-                favoriteQuote.Quotes.Remove(quote);
+                _context.FavouriteQuotes.Add(newFavorite);
             }
             else
             {
-                // Add the quote if it is not a favorite
-                favoriteQuote.Quotes.Add(quote);
+                // Remove from favorites if already present
+                _context.FavouriteQuotes.Remove(favoriteQuote);
             }
 
-            // Save the changes
             await _context.SaveChangesAsync();
         }
 
-
+        // Method to retrieve a random quote
         public async Task<Quote?> GetRandomQuoteAsync()
         {
             // Retrieve all quotes
@@ -96,7 +86,9 @@ namespace HabitBuilder.Context
 
             // Return null if no quotes are available
             if (quotes == null || quotes.Count == 0)
+            {
                 return null;
+            }
 
             // Select a random quote
             var random = new Random();
@@ -104,7 +96,15 @@ namespace HabitBuilder.Context
             return quotes[index];
         }
 
-
-
+        // Method to retrieve all favorite quotes for a user
+        public async Task<List<Quote>> GetFavoriteQuotesAsync(User user)
+        {
+            // Retrieve the user's favorite quotes
+            return await _context.FavouriteQuotes
+                .Where(fq => fq.User.Id == user.Id)
+                .Include(fq => fq.Quote) // Include the Quote details
+                .Select(fq => fq.Quote) // Select only the quotes
+                .ToListAsync();
+        }
     }
 }

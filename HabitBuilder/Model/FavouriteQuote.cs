@@ -4,6 +4,6 @@
     {
         public int Id { get; set; }
         public User User { get; set; }
-        public List<Quote> Quotes { get; set; } = new List<Quote>();
+        public Quote Quote { get; set; }
     }
 }
