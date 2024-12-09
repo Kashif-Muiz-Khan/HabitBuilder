@@ -15,7 +15,7 @@ namespace HabitBuilder.Context
         // Method to get all quotes, ordered by QuoteText
         public async Task<List<Quote>> GetAllQuotesAsync()
         {
-            return await _context.Quotes.OrderBy(quote => quote.QuoteText).ToListAsync();
+            return await _context.Quotes.OrderBy(quote => quote.Id).ToListAsync();
         }
 
         // Method to add a new quote

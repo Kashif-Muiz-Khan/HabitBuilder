@@ -40,6 +40,36 @@ namespace HabitBuilder.Context
             return CalculateLongestStreak(logs);
         }
 
+        // Get the highest streak across all habits
+        public async Task<int> GetHighestStreakAsync(User user)
+        {
+            var habitPerformances = await GetHabitPerformanceAsync(user);
+            return habitPerformances.Max(hp => hp.Streak);
+        }
+
+        // Get the best-performing habit(s)
+        public async Task<List<HabitPerformance>> GetBestPerformingHabitAsync(User user)
+        {
+            var habitPerformances = await GetHabitPerformanceAsync(user);
+            var maxPoints = habitPerformances.Max(hp => hp.TotalPoints);
+            return habitPerformances.Where(hp => hp.TotalPoints == maxPoints).ToList();
+        }
+
+        // Get the worst-performing habit(s)
+        public async Task<List<HabitPerformance>> GetWorstPerformingHabitAsync(User user)
+        {
+            var habitPerformances = await GetHabitPerformanceAsync(user);
+            var minPoints = habitPerformances.Min(hp => hp.TotalPoints);
+            return habitPerformances.Where(hp => hp.TotalPoints == minPoints).ToList();
+        }
+
+        // Calculate the average streak for a user
+        public async Task<double> GetAverageStreakAsync(User user)
+        {
+            var habitPerformances = await GetHabitPerformanceAsync(user);
+            return habitPerformances.Average(hp => hp.Streak);
+        }
+
         // Helper: Calculate longest streak
         private int CalculateLongestStreak(List<HabitOrder> logs)
         {
@@ -105,6 +135,5 @@ namespace HabitBuilder.Context
 
             return streak;
         }
-
     }
 }

@@ -38,12 +38,46 @@ else
                 </div>
             }
         </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h5>Highest Streak: @highestStreak</h5>
+            </div>
+            <div class="col-md-6">
+                <h5>Average Streak: @averageStreak</h5>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h5>Best Performing Habit(s):</h5>
+                <ul>
+                    @foreach (var bestHabit in bestPerformingHabits)
+                    {
+                        <li>@bestHabit.HabitName - @bestHabit.TotalPoints Points</li>
+                    }
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h5>Worst Performing Habit(s):</h5>
+                <ul>
+                    @foreach (var worstHabit in worstPerformingHabits)
+                    {
+                        <li>@worstHabit.HabitName - @worstHabit.TotalPoints Points</li>
+                    }
+                </ul>
+            </div>
+        </div>
     </div>
 }
 
 @code {
     private List<HabitPerformance> habitPerformances;
     private User user;
+    private int highestStreak;
+    private double averageStreak;
+    private List<HabitPerformance> bestPerformingHabits;
+    private List<HabitPerformance> worstPerformingHabits;
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,12 +93,19 @@ else
             }
 
             user = UserProvider.GetUserByUsername(username);
+
+            // Fetch habit performances
             habitPerformances = await ReviewProvider.GetHabitPerformanceAsync(user);
+
+            // Fetch additional review metrics
+            highestStreak = await ReviewProvider.GetHighestStreakAsync(user);
+            averageStreak = await ReviewProvider.GetAverageStreakAsync(user);
+            bestPerformingHabits = await ReviewProvider.GetBestPerformingHabitAsync(user);
+            worstPerformingHabits = await ReviewProvider.GetWorstPerformingHabitAsync(user);
         }
         catch (Exception ex)
         {
             Snackbar.Add($"Error loading habit review: {ex.Message}", Severity.Error);
         }
     }
-
 }

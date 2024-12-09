@@ -6,7 +6,7 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject HabitOrderProvider HabitOrderProvider
 
-<h3>HabitGraph</h3>
+
 
 
 @* Draws the graph componenet with x value being the date and y value being the total points *@
@@ -16,9 +16,12 @@
                          Name="Total Points"
                          SeriesType="SeriesType.Area"
                          XValue="e => e.Order"
-                         YValue="e => e.Total"/>
+                         YValue="e => e.Total"
+                         Color="Orange"
+                         />
     </ApexChart>
 </div>
+
 
 @code {
     private User user; // Stores the user for retrieving specific logs
@@ -41,10 +44,19 @@
             {
                 Theme = new Theme
                 {
-                    Mode = Mode.Light, // Light theme
+                    Mode = Mode.Dark, // Dark theme
                     Palette = PaletteType.Palette8 // Apply Palette8
+                },
+                Colors = new List<string> { "#800080" }, // Purple color
+
+                Fill = new Fill
+                {
+                    Type = new List<FillType> { FillType.Solid }, // Solid fill
+                    Colors = new List<string> { "#800080" } // Same purple color for the fill
                 }
             };
+
+
     }
 
     private void CalculateTotalPoints()

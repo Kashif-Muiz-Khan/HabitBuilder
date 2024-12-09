@@ -7,6 +7,8 @@
 
 <PageTitle>Home</PageTitle>
 
+<body style="background-color: rgba(26,26,39,1)">
+
 @* Checks if the user is logged in, if so shows the graph and log, else prompts to log in *@
 @if (user == null)
 {
@@ -21,11 +23,9 @@ else
     <OrderForm />
     <OrderEditForm/>
 
-
-
-
 }
 
+</body>
 @code {
     // Validates user to ensure the user is logged in
     private User user;

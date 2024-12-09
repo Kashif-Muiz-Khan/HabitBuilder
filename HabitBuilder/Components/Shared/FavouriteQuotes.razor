@@ -12,28 +12,106 @@
 @if (favoriteQuotes == null) // Check if the favorite quotes are still loading
 {
     <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
-    // Display loading spinner
 }
 else if (!favoriteQuotes.Any()) // Check if there are no favorite quotes
 {
     <p>You haven't added any favorite quotes yet!</p>
-    // Message for empty favorite list
 }
 else
 {
+    <style>
+        body {
+            background: #1D1F20;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .card.custom-card {
+            background-color: rgba(26, 26, 39, 1);
+            color: white;
+            border: 1px solid #f1c40f;
+            border-radius: 10px;
+            box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.5);
+            height: auto; /* Allows cards to adjust height to content */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            position: relative;
+        }
+
+        .quote-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .opening-quote,
+        .closing-quote {
+            font-size: 50px;
+            color: #f1c40f;
+            font-family: "Times New Roman", Georgia, Serif;
+        }
+
+        .opening-quote {
+            position: absolute;
+            top: 0;
+            left: 10px;
+        }
+
+        .closing-quote {
+            position: absolute;
+            bottom: 0;
+            right: 10px;
+        }
+
+        .quote-text {
+            font-style: italic;
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            line-height: 1.5;
+            margin: 20px 40px;
+            position: relative;
+        }
+
+        .card-title {
+            color: #f1c40f;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+            .actions .MudIconButton {
+                margin-top: 5px;
+            }
+    </style>
+
     <div class="container">
         <div class="row">
-            @foreach (var quote in favoriteQuotes) // Iterate over favorite quotes
+            @foreach (var quote in favoriteQuotes)
             {
-                <div class="col-md-4 mb-4 d-flex">
-                    <div class="card flex-fill">
-                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                            <h5 class="card-title text-center">"@quote.QuoteText"</h5> @* Display quote text and author *@
-                            <p class="card-text text-center">@quote.Author</p>
+                <div class="col-md-4 mb-4">
+                    <div class="card custom-card">
+                        <div class="quote-container">
+                            <div class="opening-quote">&ldquo;</div>
+                            <div class="quote-text">@quote.QuoteText</div>
+                            <div class="closing-quote">&rdquo;</div>
+                        </div>
+                        <h5 class="card-title">@quote.Author</h5>
+                        <div class="actions">
                             <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                            Color="Color.Error"
                                            aria-label="Remove from favorites"
-                                           OnClick="@(() => RemoveFavorite(quote.Id))" /> @* Button to remove quote from favorites *@
+                                           OnClick="@(() => RemoveFavorite(quote.Id))" />
                         </div>
                     </div>
                 </div>
@@ -41,6 +119,7 @@ else
         </div>
     </div>
 }
+
 
 @code {
     private List<Quote> favoriteQuotes = new(); // List to store user's favorite quotes

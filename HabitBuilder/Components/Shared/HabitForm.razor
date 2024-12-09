@@ -9,83 +9,91 @@
 @inject UserProvider UserProvider
 
 <!-- Habit Form -->
-<div class="card">
-    <div class="card-body bg-light">
-        <h4 class="card-title">
-            @(model.Id == 0 ? "Add Habit" : "Edit Habit")
-        </h4>
-        <EditForm OnValidSubmit="Submit" EditContext="editContext">
-            <DataAnnotationsValidator />
 
-            <!-- Habit Form allowing the user to input required Habit Details -->
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label for="name" class="form-label">Name</label>
-                    <InputText class="form-control" placeholder="Name" @bind-Value="model.Name" />
-                    <ValidationMessage For="@(() => model.Name)" />
-                </div>
-                <div class="col-md-3">
-                    <label for="type" class="form-label">Type</label>
-                    <InputText class="form-control" placeholder="Type" @bind-Value="model.Type" />
-                    <ValidationMessage For="@(() => model.Type)" /> <!-- Binds the input to model to be used later when saving to database-->
-                </div>
-                <div class="col-md-3">
-                    <label for="description" class="form-label">Description</label>
-                    <InputText class="form-control" placeholder="Description" @bind-Value="model.Description" />
-                    <ValidationMessage For="@(() => model.Description)" />
+<body style="background-color: rgba(26,26,39,1); color: white;">
+    <div class="card" style="background-color: rgba(66,66,66,255); color:white; border: none;">
+        <div class="card-body">
+            <h4 class="card-title">
+                @(model.Id == 0 ? "Add Habit" : "Edit Habit")
+            </h4>
+            <EditForm OnValidSubmit="Submit" EditContext="editContext">
+                <DataAnnotationsValidator />
+
+                <!-- Habit Form allowing the user to input required Habit Details -->
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="name" class="form-label">Name</label>
+                        <InputText class="form-control" style="background-color: rgba(26,26,39,1); color: white;" placeholder="Name" @bind-Value="model.Name" />
+                        <ValidationMessage For="@(() => model.Name)" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="type" class="form-label">Type</label>
+                        <InputText class="form-control" style="background-color: rgba(26,26,39,1); color: white;" placeholder="Type" @bind-Value="model.Type" />
+                        <ValidationMessage For="@(() => model.Type)" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="description" class="form-label">Description</label>
+                        <InputText class="form-control" style="background-color: rgba(26,26,39,1); color: white;" placeholder="Description" @bind-Value="model.Description" />
+                        <ValidationMessage For="@(() => model.Description)" />
+                    </div>
+
+                    <!-- Displays the predefined list of frequencies for the user to choose from -->
+                    <div class="col-md-3">
+                        <label for="frequency" class="form-label">Frequency</label>
+                        <InputSelect class="form-control" style="background-color: rgba(26,26,39,1); color: white;" @bind-Value="model.Frequency">
+                            @foreach (var frequency in Enum.GetValues(typeof(FrequencyLevel)))
+                            {
+                                <option value="@frequency">@frequency</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => model.Frequency)" />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="target" class="form-label">Target</label>
+                        <InputNumber class="form-control" style="background-color: rgba(26,26,39,1); color: white;" placeholder="Target (e.g., 3 times)" @bind-Value="model.Target" />
+                        <ValidationMessage For="@(() => model.Target)" />
+                    </div>
+
+                    <!-- Displays the predefined list of difficulty levels for the user to choose from -->
+                    <div class="col-md-3">
+                        <label for="difficulty" class="form-label">Difficulty</label>
+                        <InputSelect class="form-control" style="background-color: rgba(26,26,39,1); color: white;" @bind-Value="model.Difficulty">
+                            @foreach (var difficulty in Enum.GetValues(typeof(DifficultyLevel)))
+                            {
+                                <option value="@difficulty">@difficulty</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => model.Difficulty)" />
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary float-end">
+                            @(model.Id == 0 ? "Add Habit" : "Save Changes")
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Displays the predefined list of frequency's from the user to choose from -->
-
-                <div class="col-md-3">
-                    <label for="frequency" class="form-label">Frequency</label>
-                    <InputSelect class="form-control" @bind-Value="model.Frequency">
-                        @foreach (var frequency in Enum.GetValues(typeof(FrequencyLevel)))
-                        {
-                            <option value="@frequency">@frequency</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => model.Frequency)" />
+                <div class="col-md-12 mt-3">
+                    <div class="card" style="background-color: rgba(26,26,39,1); color: white; border: none;">
+                        <div class="card-body">
+                            <p>The Difficulty Levels award points in the following manner:</p>
+                            <ul>
+                                <li>Very Easy - 2 points</li>
+                                <li>Easy - 5 points</li>
+                                <li>Medium - 8 points</li>
+                                <li>Hard - 12 points</li>
+                                <li>Very Hard - 16 points</li>
+                                <li>Impossible - 25 points</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label for="target" class="form-label">Target</label>
-                    <InputNumber class="form-control" placeholder="Target (e.g., 3 times)" @bind-Value="model.Target" />
-                    <ValidationMessage For="@(() => model.Target)" />
-                </div>
-
-                <!-- Displays the predefined list of difficulty from the user to choose from -->
-
-                <div class="col-md-3">
-                    <label for="difficulty" class="form-label">Difficulty</label>
-                    <InputSelect class="form-control" @bind-Value="model.Difficulty">
-                        @foreach (var difficulty in Enum.GetValues(typeof(DifficultyLevel)))
-                        {
-                            <option value="@difficulty">@difficulty</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => model.Difficulty)" />
-                </div>
-                <div class="col-md-12">
-                    <button type="submit" class="btn btn-primary float-end">@(model.Id == 0 ? "Add Habit" : "Save Changes")</button>
-                </div> <!-- Displays Add Habit or Save Changes depending on if the user is submitting a new habit or editing a exiting one-->
-            </div>
-            <div class=" col-md-12">
-                <div class="card">
-                    <p>The Difficulty Levels award point in the following manner</p>
-                    <ul>
-                        <li>Very Easy - 2 points</li>
-                        <li>Easy - 5 points</li>
-                        <li>Medium - 8 points</li>
-                        <li>Hard - 12 points</li>
-                        <li>Very Hard - 16 points</li>
-                        <li>Impossible - 25 points</li>
-                    </ul>
-                </div>
-            </div>
-        </EditForm>
+            </EditForm>
+        </div>
     </div>
-</div>
+</body>
 
+<br />
+<br/>
 
 @code {
     [Parameter]

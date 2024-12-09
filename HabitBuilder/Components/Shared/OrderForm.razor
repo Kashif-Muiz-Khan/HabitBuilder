@@ -19,7 +19,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-9">
-            <div class="card">
+            <div class="card" style="background-color: rgba(66,66,66,255); color:white">
                 <div class="card-body">
                     <h4 class="card-title">Habit Order</h4>
 
@@ -44,7 +44,7 @@
                         <div class="row g-3">
                             <div class="col-md-12">
                                 <div class="form-check">
-                                    <InputCheckbox class="form-check-input" @bind-Value="None" /> @* the none option that would set total points to 0 *@
+                                    <InputCheckbox class="form-check-input" style="background-color: purple;"  @bind-Value="None" /> @* the none option that would set total points to 0 *@
                                     <label class="form-check-label">None</label>
                                 </div>
                                 @if (!None) @* if none is not selected displays the habits *@
@@ -52,7 +52,7 @@
                                     @foreach (Habit habit in Habits) @* iterates over the habits displaying them in checkboxes *@
                                     {
                                         <div class="form-check">
-                                            <InputCheckbox class="form-check-input" @bind-Value="habit.IsChecked" id="@($"habit_{habit.Id}")" />
+                                            <InputCheckbox class="form-check-input" style="background-color: purple;" @bind-Value="habit.IsChecked" id="@($"habit_{habit.Id}")" />
                                             <label class="form-check-label" for="@($"habit_{habit.Id}")">@habit.Name</label>
                                         </div>
                                     }
@@ -62,7 +62,7 @@
 
 
                         <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="submit" class="btn" style="color: purple; background-color:gold">Submit</button>
                     </EditForm>
                 </div>
             </div>

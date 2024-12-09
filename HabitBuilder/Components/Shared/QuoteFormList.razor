@@ -11,7 +11,7 @@
 <div>
     <div class="row g-0">
         <div class="col-md-12">
-            <button class="btn btn-primary float-end" @onclick="ShowAddQuote">
+            <button class="btn btn-primary float-end" style="color: black; background-color:gold; border:none" @onclick="ShowAddQuote">
                 Add Quote
             </button>
         </div>
@@ -19,43 +19,51 @@
 
     @if (showForm)
     {
-        <div class="card">
-            <div class="card-body bg-light">
-                <h4 class="card-title">
+        <div class="card" style="background-color: rgba(66,66,66,255); color:white; border: none;">
+            <div class="card-body">
+                <h4 class="card-title align-left" style="color:white;">
                     @(model.Id == 0 ? "Add Quote" : "Edit Quote")
                 </h4>
                 <EditForm OnValidSubmit="Submit" EditContext="editContext">
                     <DataAnnotationsValidator />
+
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="quoteText" class="form-label">Quote Text</label>
-                            <InputText class="form-control" placeholder="Enter the quote" @bind-Value="model.QuoteText" />
+                            <InputText class="form-control" style="background-color: rgba(26,26,39,1); color: white;" placeholder="Enter the quote" @bind-Value="model.QuoteText" />
                             <ValidationMessage For="@(() => model.QuoteText)" />
                         </div>
                         <div class="col-md-6">
                             <label for="author" class="form-label">Author</label>
-                            <InputText class="form-control" placeholder="Enter the author's name" @bind-Value="model.Author" />
+                            <InputText class="form-control" style="background-color: rgba(26,26,39,1); color: white;" placeholder="Enter the author's name" @bind-Value="model.Author" />
                             <ValidationMessage For="@(() => model.Author)" />
                         </div>
                         <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary float-end">
-                                @(model.Id == 0 ? "Add Quote" : "Edit Quote")
+                            <button type="submit" class="btn btn-primary float-end" style="color: black; background-color:gold; border:none;">
+                                @(model.Id == 0 ? "Add Quote" : "Save Changes")
                             </button>
                         </div>
                     </div>
                 </EditForm>
             </div>
         </div>
+
     }
 </div>
 
-<div class="container">
+<br/>
+<br/>
+<br />
+
+
+
+@* <div class="container">
     <div class="row">
         @foreach (var quote in quotes.Select((value, index) => new { value, index }))
         {
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body centre">
+            <div class="col-md-4 mb-4 d-flex">
+                <div class="card flex-fill">
+                    <div class="card-body">
                         <h5 class="card-title">"@quote.value.QuoteText"</h5>
                         <h6 class="card-text">@quote.value.Author</h6>
                         <!-- Favorite button -->
@@ -72,7 +80,196 @@
             }
         }
     </div>
+</div> *@
+
+
+<style>
+    body {
+        background: #1D1F20;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    .card.custom-card {
+        background-color: rgba(26, 26, 39, 1);
+        color: white;
+        border: 1px solid #f1c40f;
+        border-radius: 10px;
+        box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%; /* Ensures all cards stretch to the same height */
+        padding: 20px;
+        position: relative;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap; /* Ensures wrapping for multiple rows */
+    }
+
+    .col-md-4 {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .quote-container {
+        flex-grow: 1; /* Ensures the quote container takes up remaining space */
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px;
+    }
+
+    .opening-quote,
+    .closing-quote {
+        font-size: 50px;
+        color: #f1c40f;
+        font-family: "Times New Roman", Georgia, Serif;
+    }
+
+    .opening-quote {
+        position: absolute;
+        top: 0;
+        left: 10px;
+    }
+
+    .closing-quote {
+        position: absolute;
+        bottom: 0;
+        right: 10px;
+    }
+
+    .quote-text {
+        font-style: italic;
+        font-size: 16px;
+        color: white;
+        text-align: center;
+        line-height: 1.5;
+        padding: 10px 40px;
+        margin: 0;
+        position: relative;
+    }
+
+    .card-title {
+        color: #f1c40f;
+        font-weight: bold;
+        font-size: 18px;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .actions {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+        .actions .MudIconButton {
+            margin-top: 5px;
+        }
+
+</style>
+
+
+
+
+<div class="container">
+    <div class="row">
+        @foreach (var quote in quotes.Select((value, index) => new { value, index }))
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card custom-card">
+                    <div class="quote-container">
+                        <div class="opening-quote">&ldquo;</div>
+                        <div class="quote-text">@quote.value.QuoteText</div>
+                        <div class="closing-quote">&rdquo;</div>
+                    </div>
+                    <h5 class="card-title">@quote.value.Author</h5>
+                    <div class="actions">
+                        <!-- Favorite Button -->
+                        <MudIconButton Icon="@GetFavoriteIcon(quote.value.Id)"
+                                       Color="Color.Secondary"
+                                       aria-label="add to favorite"
+                                       OnClick="@(() => ToggleFavorite(quote.value.Id))" />
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
+
+
+
+
+
+
+
+<style>
+    /* Table container styling */
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #ffffff; /* Text color */
+    background-color: rgba(66, 66, 66, 255); /* Table background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    border-collapse: collapse; /* Removes extra borders between cells */
+    overflow: hidden;
+}
+
+/* Header styling */
+.table thead th {
+    background-color: purple; /* Header background */
+    color: white; /* Header text color */
+    text-align: center;
+    font-size: 14px; /* Font size for header */
+    padding: 12px; /* Padding inside header cells */
+}
+
+/* Body cell styling */
+.table tbody td {
+    padding: 12px; /* Cell padding */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Light divider */
+    text-align: left; /* Align content to the left */
+    background-color: rgba(66,66,66,255);
+    color: white;
+            
+}
+
+/* Hover effect for rows */
+.table tbody tr:hover {
+    background-color: rgba(80, 80, 80, 1); /* Highlight row on hover */
+}
+
+/* Button styles */
+.table .btn {
+    font-size: 14px; /* Button font size */
+    padding: 5px 10px; /* Padding for buttons */
+    border-radius: 4px; /* Rounded edges for buttons */
+}
+
+/* Success button style */
+.table .btn-success {
+    background-color: #28a745; /* Green */
+    border: none; /* Remove border */
+}
+
+/* Danger button style */
+.table .btn-danger {
+    background-color: #dc3545; /* Red */
+    border: none; /* Remove border */
+}
+
+
+
+}
+
+
+</style>
+
+
 
 <div>
     <div class="row g-0">
@@ -113,6 +310,8 @@
         </table>
     }
 </div>
+
+
 
 @code {
     private List<Quote> quotes = new();

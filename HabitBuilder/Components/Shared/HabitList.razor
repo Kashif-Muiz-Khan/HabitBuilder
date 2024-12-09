@@ -6,7 +6,7 @@
 @inject HabitProvider HabitProvider
 @inject NavigationManager NavigationManager
 
-<h3>Habit QuickGrid</h3>
+
 
 @if (Habits == null)
 {
@@ -14,9 +14,10 @@
 }
 else
 {
+
     <div>
         <!-- Filters -->
-        <div class="filters">
+        <div class="filters" style="background-color: rgba(66,66,66,255); color:white">
             <div class="filter-frequency">
                 <label for="frequency-filter">Filter by Frequency:</label>
                 <select id="frequency-filter" @bind="frequencyFilter">
@@ -32,8 +33,121 @@ else
             </div>
         </div>
 
+
+        <style>
+            /* Styles for the QuickGrid */
+            .quickgrid-container {
+                background-color: rgba(66, 66, 66, 255); /* Grid background color */
+                color: white; /* Default text color */
+                border-radius: 8px; /* Rounded edges for the grid */
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+                padding: 10px; /* Padding inside the grid container */
+            }
+
+                .quickgrid-container th {
+                    background-color: purple; /* Header background */
+                    color: white; /* Header text color */
+                    text-align: center; /* Center align headers */
+                    padding: 8px; /* Header cell padding */
+                    font-size: 14px; /* Header font size */
+                }
+
+                .quickgrid-container td {
+                    padding: 10px; /* Cell padding */
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Light divider */
+                    text-align: left; /* Left align content */
+                }
+
+                .quickgrid-container tr:hover {
+                    background-color: rgba(80, 80, 80, 1); /* Highlight rows on hover */
+                }
+
+                .quickgrid-container .btn {
+                    font-size: 14px; /* Button font size */
+                    padding: 5px 10px; /* Button padding */
+                }
+
+                /* Button styles */
+                .quickgrid-container .btn-success {
+                    background-color: #28a745; /* Green */
+                    border: none;
+                }
+
+                .quickgrid-container .btn-danger {
+                    background-color: #dc3545; /* Red */
+                    border: none;
+                }
+
+                .quickgrid-container .btn-primary {
+                    background-color: #007bff; /* Blue */
+                    border: none;
+                }
+
+                /* Pagination styles */
+                .quickgrid-container .pagination {
+                    background-color: rgba(66, 66, 66, 255);
+                    color: white;
+                    border: none;
+                }
+
+            /* Filters container styles */
+            .filters {
+                background-color: rgba(66, 66, 66, 255);
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                margin-bottom: 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            /* Individual filter section styles */
+            .filter-frequency {
+                display: flex;
+                flex-direction: column;
+            }
+
+                .filter-frequency label {
+                    font-size: 14px;
+                    margin-bottom: 5px;
+                }
+
+            #frequency-filter {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                padding: 5px 10px;
+                border-radius: 4px;
+                outline: none;
+            }
+
+                #frequency-filter option {
+                    background-color: rgba(66, 66, 66, 255);
+                    color: white;
+                }
+
+            /* Search box styles */
+            .search-box input[type="search"] {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                padding: 5px 10px;
+                border-radius: 4px;
+                outline: none;
+                width: 250px;
+            }
+
+                .search-box input[type="search"]::placeholder {
+                    color: rgba(255, 255, 255, 0.6);
+                }
+        </style>
+
+
         <!-- Habit QuickGrid -->
-        <QuickGrid Theme="habit" Class="table" Items="@FilteredHabit" Pagination="@pagination">
+        <div style="background-color: rgba(66,66,66,255); color: white;">
+        <QuickGrid Theme="habit" Class="quickgrid-container" Items="@FilteredHabit" Pagination="@pagination">
             <!-- The columns in which the data will be displayed -->
             <PropertyColumn Property="@(p => p.Id)" Title="ID" Sortable="true" />
             <PropertyColumn Property="@(p => p.Name)" Title="Habit Name" Sortable="true" />
@@ -55,7 +169,8 @@ else
                 <button class="btn btn-primary" @onclick="() => ShowInfo(context)">Info</button>
             </TemplateColumn>
         </QuickGrid>
-        <Paginator State="@pagination" />
+        <Paginator State="@pagination"/>
+    </div>
     </div>
 }
 
