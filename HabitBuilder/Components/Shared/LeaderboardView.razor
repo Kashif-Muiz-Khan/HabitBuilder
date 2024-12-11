@@ -1,0 +1,114 @@
+﻿@using HabitBuilder.Context
+@using HabitBuilder.Model
+@using Microsoft.AspNetCore.Components.Authorization
+@inject ReviewProvider ReviewProvider
+@inject UserProvider UserProvider
+@inject NavigationManager NavigationManager
+
+
+@if (users == null || !users.Any())
+{
+    <p>Loading leaderboard...</p>
+}
+else
+{
+    <style>
+        .leaderboard-container {
+            width: 100%;
+            margin: auto;
+            background-color: rgba(66, 66, 66, 255);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+            .leaderboard-table th, .leaderboard-table td {
+                text-align: left;
+                padding: 10px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .leaderboard-table th {
+                background-color: purple;
+                color: white;
+            }
+
+            .leaderboard-table tr:hover {
+                background-color: rgba(80, 80, 80, 1);
+            }
+    </style>
+
+    <div class="leaderboard-container">
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>Total Points</th>
+                    <th>Highest Streak</th>
+                    <th>Best Performing Habit</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in users.OrderByDescending(u => u.TotalPoints).Select((value, index) => new { value, index }))
+                {
+                    <tr>
+                        <td>@(user.index + 1)</td>
+                        <td>@user.value.Username</td>
+                        <td>@user.value.TotalPoints</td>
+                        <td>@user.value.HighestStreak</td>
+                        <td>@user.value.BestPerformingHabit</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<LeaderboardUser> users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLeaderboard();
+    }
+
+    private async Task LoadLeaderboard()
+    {
+        var allUsers = await UserProvider.GetAllUsersAsync();
+
+        users = new List<LeaderboardUser>();
+
+        foreach (var user in allUsers)
+        {
+            var totalPoints = await ReviewProvider.GetTotalPointsForUserAsync(user);
+            var highestStreak = await ReviewProvider.GetHighestStreakAsync(user);
+            var bestPerformingHabit = await ReviewProvider.GetBestPerformingHabitAsync(user);
+
+            users.Add(new LeaderboardUser
+                {
+                    Username = user.FirstName,
+                    TotalPoints = totalPoints,
+                    HighestStreak = highestStreak,
+                    BestPerformingHabit = bestPerformingHabit.FirstOrDefault()?.HabitName ?? "N/A"
+                });
+        }
+
+        users = users.OrderByDescending(u => u.TotalPoints).ToList();
+    }
+
+    private class LeaderboardUser
+    {
+        public string Username { get; set; }
+        public int TotalPoints { get; set; }
+        public int HighestStreak { get; set; }
+        public string BestPerformingHabit { get; set; }
+    }
+}

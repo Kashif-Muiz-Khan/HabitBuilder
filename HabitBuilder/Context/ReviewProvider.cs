@@ -44,16 +44,32 @@ namespace HabitBuilder.Context
         public async Task<int> GetHighestStreakAsync(User user)
         {
             var habitPerformances = await GetHabitPerformanceAsync(user);
+
+            // Check if habitPerformances is empty
+            if (!habitPerformances.Any())
+            {
+                return 0; // Return 0 or a default value when there are no habits
+            }
+
             return habitPerformances.Max(hp => hp.Streak);
         }
+
 
         // Get the best-performing habit(s)
         public async Task<List<HabitPerformance>> GetBestPerformingHabitAsync(User user)
         {
             var habitPerformances = await GetHabitPerformanceAsync(user);
+
+            // Check if habitPerformances is empty
+            if (!habitPerformances.Any())
+            {
+                return new List<HabitPerformance>(); // Return an empty list when there are no habits
+            }
+
             var maxPoints = habitPerformances.Max(hp => hp.TotalPoints);
             return habitPerformances.Where(hp => hp.TotalPoints == maxPoints).ToList();
         }
+
 
         // Get the worst-performing habit(s)
         public async Task<List<HabitPerformance>> GetWorstPerformingHabitAsync(User user)
@@ -81,11 +97,11 @@ namespace HabitBuilder.Context
             {
                 if (lastDate.HasValue && (log.Day.DayNumber - lastDate.Value.DayNumber) == 1)
                 {
-                    currentStreak++;
+                    currentStreak++; //Adds 1 to the streak if it was completed the day before as well
                 }
                 else
                 {
-                    currentStreak = 1;
+                    currentStreak = 1; //If not then sets streak as 1
                 }
 
                 longestStreak = Math.Max(longestStreak, currentStreak);
@@ -96,30 +112,34 @@ namespace HabitBuilder.Context
         }
 
         // Get habit performance summary for a user
+        // Retrieves a summary of habit performance for a specific user
         public async Task<List<HabitPerformance>> GetHabitPerformanceAsync(User user)
         {
+            // Fetch all orders for the user, including related habit data
             var orders = await _context.Orders
-                .Include(o => o.Items)
+                .Include(o => o.Items) // Include order items and their associated habits
                     .ThenInclude(i => i.Habit)
-                .Where(o => o.User.Id == user.Id)
+                .Where(o => o.User.Id == user.Id) // Filter by the user's ID
                 .ToListAsync();
 
+            // Process and group habit data to calculate performance metrics
             var habitPerformances = orders
-                .SelectMany(order => order.Items)
-                .GroupBy(item => item.Habit.Id)
+                .SelectMany(order => order.Items) 
+                .GroupBy(item => item.Habit.Id) // Group by habit ID
                 .Select(group => new HabitPerformance
                 {
                     HabitId = group.Key,
                     HabitName = group.First().Habit.Name,
-                    TotalCompletions = group.Count(),
-                    TotalPoints = group.Sum(item => item.Habit.Point),
-                    Streak = CalculateStreak(group.ToList()),
-                    MissedCount = group.Count(item => !item.Habit.IsChecked),
-                    RequiredCount = group.First().Habit.Target
+                    TotalCompletions = group.Count(), // Total times the habit was completed
+                    TotalPoints = group.Sum(item => item.Habit.Point), // Total points earned
+                    Streak = CalculateStreak(group.ToList()), // Longest streak for this habit
+                    MissedCount = group.Count(item => !item.Habit.IsChecked), // Missed occurrences
+                    RequiredCount = group.First().Habit.Target // Target completion count
                 }).ToList();
 
-            return habitPerformances;
+            return habitPerformances; // Return the calculated performance data
         }
+
 
         // Helper method for calculating streaks
         private int CalculateStreak(List<HabitOrderItem> logs)

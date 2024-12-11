@@ -38,5 +38,14 @@ namespace HabitBuilder.Context
             _context.Habits.Update(habits);
             await _context.SaveChangesAsync();
         }
+
+
+        public async Task<List<Habit>> GetHabitsByUserAsync(User user)
+        {
+            return await _context.Habits
+                .Where(h => h.User.Id == user.Id)
+                .ToListAsync();
+        }
+
     }
 }

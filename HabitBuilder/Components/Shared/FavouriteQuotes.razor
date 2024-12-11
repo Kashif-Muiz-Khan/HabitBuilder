@@ -7,7 +7,10 @@
 @inject UserProvider UserProvider
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<h3>Your Favorite Quotes</h3>
+
+<div style="display: flex; justify-content: center; align-items: center;">
+    <h3 style="color: gold;">Your Favourite Quotes</h3>
+</div>
 
 @if (favoriteQuotes == null) // Check if the favorite quotes are still loading
 {

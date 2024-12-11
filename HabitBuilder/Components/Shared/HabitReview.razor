@@ -10,74 +10,197 @@
 
 <h3>Habit Performance Review</h3>
 
-@if (habitPerformances == null)
+@if (habitPerformances == null) // Show a progress spinner while data is loading
 {
     <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
 }
-else if (!habitPerformances.Any())
+else if (!habitPerformances.Any()) // Display a message if no habits are logged
 {
-    <p>You don't have any habits logged yet!</p>
+    <p style="text-align: center;">You don't have any habits logged yet!</p>
 }
 else
 {
     <div class="container">
-        <div class="row">
-            @foreach (var habit in habitPerformances)
-            {
-                <div class="col-md-4 mb-4 d-flex">
-                    <div class="card flex-fill">
-                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                            <h5 class="card-title text-center">@habit.HabitName</h5>
-                            <p class="card-text">Total Completions: @habit.TotalCompletions</p>
-                            <p class="card-text">Total Points: @habit.TotalPoints</p>
-                            <p class="card-text">Streak: @habit.Streak</p>
-                            <p class="card-text">Missed Count: @habit.MissedCount</p>
-                            <p class="card-text">Required Count: @habit.RequiredCount</p>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
+        @foreach (var habit in habitPerformances) // Render cards for each habit's performance
+        {
+            <div class="card">
+                <h5 class="card-title">@habit.HabitName</h5>
+                <p class="card-text">Total Completions: <strong>@habit.TotalCompletions</strong></p>
+                <p class="card-text">Total Points: <strong>@habit.TotalPoints</strong></p>
+                <p class="card-text">Streak: <strong>@habit.Streak</strong></p>
+                <p class="card-text">Missed Count: <strong>@habit.MissedCount</strong></p>
+                <p class="card-text">Required Count: <strong>@habit.RequiredCount</strong></p>
+            </div>
+        }
+    </div>
 
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <h5>Highest Streak: @highestStreak</h5>
-            </div>
-            <div class="col-md-6">
-                <h5>Average Streak: @averageStreak</h5>
-            </div>
+    <div class="container bottom-stats">
+        <div class="stat-card">
+            <h5 class="card-title">Highest Streak</h5>
+            <p class="card-text"><strong>@highestStreak</strong></p>
         </div>
-
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <h5>Best Performing Habit(s):</h5>
-                <ul>
-                    @foreach (var bestHabit in bestPerformingHabits)
-                    {
-                        <li>@bestHabit.HabitName - @bestHabit.TotalPoints Points</li>
-                    }
-                </ul>
-            </div>
-            <div class="col-md-6">
-                <h5>Worst Performing Habit(s):</h5>
-                <ul>
-                    @foreach (var worstHabit in worstPerformingHabits)
-                    {
-                        <li>@worstHabit.HabitName - @worstHabit.TotalPoints Points</li>
-                    }
-                </ul>
-            </div>
+        <div class="stat-card">
+            <h5 class="card-title">Average Streak</h5>
+            <p class="card-text"><strong>@Math.Round(@averageStreak)</strong></p>
+        </div>
+        <div class="stat-card">
+            <h5 class="card-title">Best Performing Habit(s)</h5>
+            <ul class="card-list">
+                @foreach (var bestHabit in bestPerformingHabits)
+                {
+                    <li>@bestHabit.HabitName - @bestHabit.TotalPoints Points</li>
+                }
+            </ul>
+        </div>
+        <div class="stat-card">
+            <h5 class="card-title">Worst Performing Habit(s)</h5>
+            <ul class="card-list">
+                @foreach (var worstHabit in worstPerformingHabits)
+                {
+                    <li>@worstHabit.HabitName - @worstHabit.TotalPoints Points</li>
+                }
+            </ul>
         </div>
     </div>
+
+
+
+
+
+
 }
 
+
+<style>
+    body {
+        background: #1D1F20;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    h3 {
+        text-align: center;
+        color: #f1c40f; /* Gold color for header */
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center; /* Center-align cards horizontally */
+        gap: 20px; /* Add spacing between cards */
+    }
+
+    .card {
+        background-color: rgba(66, 66, 66, 1); /* Dark gray card background */
+        color: white;
+        border: 1px solid #f1c40f; /* Gold border */
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        width: 250px; /* Uniform width */
+        min-height: 200px; /* Ensure consistent card height */
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between; /* Space out content vertically */
+        text-align: center;
+    }
+
+    .card-title {
+        font-size: 1.5rem; /* Larger font for titles */
+        font-weight: bold;
+        color: #f1c40f; /* Gold color for titles */
+        margin-bottom: 10px;
+    }
+
+    .card-text {
+        font-size: 1rem; /* Normal font size for text */
+        margin-bottom: 5px;
+    }
+
+    .row {
+        margin-top: 30px; /* Add spacing between sections */
+    }
+
+        .row h5 {
+            text-align: center;
+            color: #f1c40f; /* Gold color for section headers */
+        }
+
+    ul {
+        list-style: none; /* Remove bullet points */
+        padding: 0;
+    }
+
+    li {
+        color: white;
+        margin-bottom: 5px;
+    }
+
+    /* Fix alignment and spacing for the bottom stats */
+    .bottom-stats {
+        display: flex;
+        justify-content: center; /* Center-align the cards horizontally */
+        gap: 30px; /* Add spacing between cards */
+        margin-top: 30px; /* Consistent spacing above */
+        flex-wrap: wrap; /* Ensure wrapping for smaller screens */
+    }
+
+    .stat-card {
+        background-color: rgba(34, 34, 51, 1); /* Purple background for the bottom row */
+        border: 1px solid #a020f0; /* Bright purple border for the bottom row */
+        color: white; /* Ensure text is white for readability */
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        width: 250px; /* Match the width of the top cards */
+        height: 200px; /* Match the height of the top cards */
+        padding: 30px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+        .stat-card .card-title {
+            font-size: 1.3rem; /* Keep font size consistent with the top cards */
+            font-weight: bold;
+            color: #a020f0; /* Purple color for the bottom titles */
+            margin-bottom: 10px;
+        }
+
+        .stat-card .card-text {
+            font-size: 1.5rem; /* Match text size to the top cards */
+            font-weight: bold;
+            color: white;
+        }
+
+        .stat-card .card-list {
+            list-style: none; /* Remove bullet points */
+            padding: 0;
+            margin: 0;
+            font-size: 1.3rem; /* Ensure readable text size */
+            text-align: center;
+        }
+
+            .stat-card .card-list li {
+                margin: 5px 0; /* Add spacing between items */
+            }
+
+
+
+   
+</style>
+
+
 @code {
-    private List<HabitPerformance> habitPerformances;
-    private User user;
-    private int highestStreak;
-    private double averageStreak;
-    private List<HabitPerformance> bestPerformingHabits;
-    private List<HabitPerformance> worstPerformingHabits;
+    private List<HabitPerformance> habitPerformances; // Stores the performance details of habits
+    private User user; // Currently logged-in user
+    private int highestStreak; // The highest streak across habits
+    private double averageStreak; // The average streak across habits
+    private List<HabitPerformance> bestPerformingHabits; // List of best-performing habits
+    private List<HabitPerformance> worstPerformingHabits; // List of worst-performing habits
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,7 +209,7 @@ else
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var username = authState.User.Identity?.Name;
 
-            if (string.IsNullOrEmpty(username))
+            if (string.IsNullOrEmpty(username)) // Check if user is authenticated
             {
                 Snackbar.Add("User not authenticated.", Severity.Warning);
                 return;
@@ -94,10 +217,8 @@ else
 
             user = UserProvider.GetUserByUsername(username);
 
-            // Fetch habit performances
+            // Fetch habit performance data and review metrics
             habitPerformances = await ReviewProvider.GetHabitPerformanceAsync(user);
-
-            // Fetch additional review metrics
             highestStreak = await ReviewProvider.GetHighestStreakAsync(user);
             averageStreak = await ReviewProvider.GetAverageStreakAsync(user);
             bestPerformingHabits = await ReviewProvider.GetBestPerformingHabitAsync(user);
@@ -105,6 +226,7 @@ else
         }
         catch (Exception ex)
         {
+            // Display an error if data loading fails
             Snackbar.Add($"Error loading habit review: {ex.Message}", Severity.Error);
         }
     }
