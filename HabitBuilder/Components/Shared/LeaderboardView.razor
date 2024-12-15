@@ -1,18 +1,21 @@
 ﻿@using HabitBuilder.Context
 @using HabitBuilder.Model
 @using Microsoft.AspNetCore.Components.Authorization
+
+
 @inject ReviewProvider ReviewProvider
 @inject UserProvider UserProvider
 @inject NavigationManager NavigationManager
 
-
+@* Conditional rendering: Show a loading message if users data is null or empty *@
 @if (users == null || !users.Any())
 {
-    <p>Loading leaderboard...</p>
+    <p>Log habits to see leaderboard...</p>
 }
 else
 {
     <style>
+        /* Styling for the leaderboard container */
         .leaderboard-container {
             width: 100%;
             margin: auto;
@@ -23,48 +26,64 @@ else
             padding: 15px;
         }
 
+        /* Styling for the leaderboard table */
         .leaderboard-table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
         }
 
+            /* Styling for table cells and headers */
             .leaderboard-table th, .leaderboard-table td {
                 text-align: left;
                 padding: 10px;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             }
 
+            /* Styling for table headers */
             .leaderboard-table th {
                 background-color: purple;
                 color: white;
             }
 
+            /* Highlight row on hover */
             .leaderboard-table tr:hover {
                 background-color: rgba(80, 80, 80, 1);
             }
     </style>
 
+    <!-- Leaderboard container to house the table -->
     <div class="leaderboard-container">
         <table class="leaderboard-table">
             <thead>
+                <!-- Table headers for the leaderboard -->
                 <tr>
                     <th>#</th>
                     <th>User</th>
                     <th>Total Points</th>
                     <th>Highest Streak</th>
+                    <th>Average Streak</th>
                     <th>Best Performing Habit</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var user in users.OrderByDescending(u => u.TotalPoints).Select((value, index) => new { value, index }))
+                @* Loop through users, calculate rankings considering ties *@
+                @for (int i = 0; i < users.Count; i++)
                 {
+                    var rank = (i > 0 && users[i].TotalPoints == users[i - 1].TotalPoints) ? i : i + 1;
                     <tr>
-                        <td>@(user.index + 1)</td>
-                        <td>@user.value.Username</td>
-                        <td>@user.value.TotalPoints</td>
-                        <td>@user.value.HighestStreak</td>
-                        <td>@user.value.BestPerformingHabit</td>
+                        <!-- Display ranking position -->
+                        <td>@rank</td>
+                        <!-- Display username -->
+                        <td>@users[i].Username</td>
+                        <!-- Display total points -->
+                        <td>@users[i].TotalPoints</td>
+                        <!-- Display highest streak -->
+                        <td>@users[i].HighestStreak</td>
+                        <!-- Display average streak -->
+                        <td>@Math.Round(@users[i].AverageStreak)</td>
+                        <!-- Display best-performing habit -->
+                        <td>@users[i].BestPerformingHabit</td>
                     </tr>
                 }
             </tbody>
@@ -73,42 +92,55 @@ else
 }
 
 @code {
+    // List to store leaderboard user data
     private List<LeaderboardUser> users;
 
+    // Method called when the component is initialized
     protected override async Task OnInitializedAsync()
     {
-        await LoadLeaderboard();
+        await LoadLeaderboard(); // Load leaderboard data
     }
 
+    // Method to load leaderboard data from the providers
     private async Task LoadLeaderboard()
     {
+        // Retrieve all users from UserProvider
         var allUsers = await UserProvider.GetAllUsersAsync();
 
+        // Initialize the leaderboard user list
         users = new List<LeaderboardUser>();
 
+        // Loop through all users to calculate leaderboard metrics
         foreach (var user in allUsers)
         {
+            // Retrieve total points, highest streak, average streak, and best-performing habit for each user
             var totalPoints = await ReviewProvider.GetTotalPointsForUserAsync(user);
             var highestStreak = await ReviewProvider.GetHighestStreakAsync(user);
+            var averageStreak = await ReviewProvider.GetAverageStreakAsync(user); // Assuming this method exists
             var bestPerformingHabit = await ReviewProvider.GetBestPerformingHabitAsync(user);
 
+            // Add the processed data to the leaderboard user list
             users.Add(new LeaderboardUser
-                {
-                    Username = user.FirstName,
-                    TotalPoints = totalPoints,
-                    HighestStreak = highestStreak,
-                    BestPerformingHabit = bestPerformingHabit.FirstOrDefault()?.HabitName ?? "N/A"
-                });
+            {
+                Username = user.FirstName, // Use the user's first name as the username
+                TotalPoints = totalPoints,
+                HighestStreak = highestStreak,
+                AverageStreak = averageStreak,
+                BestPerformingHabit = bestPerformingHabit.FirstOrDefault()?.HabitName ?? "N/A" // Default to "N/A" if no habit is found
+            });
         }
 
+        // Sort users by total points in descending order
         users = users.OrderByDescending(u => u.TotalPoints).ToList();
     }
 
+    // Class to represent a user's leaderboard data
     private class LeaderboardUser
     {
-        public string Username { get; set; }
-        public int TotalPoints { get; set; }
-        public int HighestStreak { get; set; }
-        public string BestPerformingHabit { get; set; }
+        public string Username { get; set; } // User's name
+        public int TotalPoints { get; set; } // Total points scored by the user
+        public int HighestStreak { get; set; } // User's highest streak
+        public double AverageStreak { get; set; } // User's average streak
+        public string BestPerformingHabit { get; set; } // User's best-performing habit
     }
 }

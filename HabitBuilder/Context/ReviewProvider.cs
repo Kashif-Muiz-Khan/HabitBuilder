@@ -80,11 +80,21 @@ namespace HabitBuilder.Context
         }
 
         // Calculate the average streak for a user
-        public async Task<double> GetAverageStreakAsync(User user)
-        {
-            var habitPerformances = await GetHabitPerformanceAsync(user);
-            return habitPerformances.Average(hp => hp.Streak);
-        }
+public async Task<double> GetAverageStreakAsync(User user)
+{
+    // Retrieve the habit performances for the user
+    var habitPerformances = await GetHabitPerformanceAsync(user);
+
+    // Check if the sequence is empty to avoid InvalidOperationException
+    if (!habitPerformances.Any())
+    {
+        return 0; // Return 0 or an appropriate default value for an empty sequence
+    }
+
+    // Calculate and return the average streak
+    return habitPerformances.Average(hp => hp.Streak);
+}
+
 
         // Helper: Calculate longest streak
         private int CalculateLongestStreak(List<HabitOrder> logs)

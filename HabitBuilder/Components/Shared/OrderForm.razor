@@ -98,7 +98,7 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var username = authState.User.Identity.Name;
         user = UserProvider.GetUserByUsername(username);
-        Habits = (await HabitProvider.GetAllHabitsAsync()).AsQueryable();
+        Habits = (await HabitProvider.GetHabitsByUserAsync(user)).AsQueryable();
         randomQuote = await QuoteProvider.GetRandomQuoteAsync();
     }
 

@@ -1,0 +1,137 @@
+﻿@using HabitBuilder.Context
+@using HabitBuilder.Model
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserProvider UserProvider
+@inject ReviewProvider ReviewProvider
+
+<MudTimeline TimelineOrientation="TimelineOrientation.Horizontal" TimelinePosition="TimelinePosition.Top" Class="timeline-style">
+    @if (Levels != null && Levels.Count > 0)
+    {
+        @for (int i = 0; i < Levels.Count; i++)
+        {
+            if (i >= 0 && i < Levels.Count) // Ensure index is within bounds
+            {
+                <MudTimelineItem Color="@Levels[i].Color" Variant="@(AverageStreak >= Levels[i].RequiredStreak ? Variant.Filled : Variant.Outlined)">
+                    <ItemContent>
+                        <MudAlert Severity="@(AverageStreak >= Levels[i].RequiredStreak ? Levels[i].Severity : Severity.Info)">
+                            @Levels[i].Name - Average Streak: @Levels[i].RequiredStreak
+                        </MudAlert>
+                    </ItemContent>
+                </MudTimelineItem>
+            }
+        }
+    }
+    else
+    {
+        <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Error">
+            Unable to load ranking levels. Please check your configuration.
+        </MudText>
+    }
+</MudTimeline>
+
+<div class="feedback-message">
+    @if (NextLevel != null)
+    {
+        <MudText Typo="Typo.h6" Align="Align.Center">
+            You're <strong>@(NextLevel.RequiredStreak - AverageStreak)</strong> average streak(s) away from reaching <strong>@NextLevel.Name</strong>!
+        </MudText>
+    }
+    else
+    {
+        <MudText Typo="Typo.h6" Align="Align.Center" Color="Color.Success">
+            Congratulations! You've reached the highest level!
+        </MudText>
+    }
+</div>
+
+<style>
+    .timeline-style {
+        margin-bottom: 20px;
+    }
+
+    .feedback-message {
+        margin-top: 20px;
+    }
+
+    .mud-alert {
+        font-size: 1rem;
+        text-align: center;
+    }
+</style>
+
+@code {
+    private User user;
+    private double AverageStreak { get; set; } = 0; // Default value to avoid null issues
+    private List<Level> Levels { get; set; } = new(); // Ensure Levels is initialized to an empty list
+
+    private Level NextLevel => Levels.FirstOrDefault(level => level.RequiredStreak > AverageStreak);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var username = authState.User.Identity?.Name;
+
+            if (string.IsNullOrEmpty(username))
+                throw new Exception("User not authenticated.");
+
+            user = UserProvider.GetUserByUsername(username);
+            if (user == null)
+                throw new Exception("Unable to fetch user.");
+
+            // Safely fetch the average streak value
+            AverageStreak = await GetSafeAverageStreakAsync(user);
+
+            // Initialize Levels list
+            InitializeLevels();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error initializing component: {ex.Message}");
+            AverageStreak = 0; // Fallback value
+        }
+    }
+
+    private async Task<double> GetSafeAverageStreakAsync(User user)
+    {
+        try
+        {
+            var habitPerformances = await ReviewProvider.GetHabitPerformanceAsync(user);
+
+            // Guard against empty collections
+            if (habitPerformances == null || !habitPerformances.Any())
+                return 0;
+
+            return habitPerformances.Average(hp => hp.Streak);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching average streak: {ex.Message}");
+            return 0; // Return default if something goes wrong
+        }
+    }
+
+    private void InitializeLevels()
+    {
+        Levels = new List<Level>
+        {
+            new Level { Name = "Novice", RequiredStreak = 5, Color = Color.Error, Severity = Severity.Error },
+            new Level { Name = "Apprentice", RequiredStreak = 10, Color = Color.Warning, Severity = Severity.Warning },
+            new Level { Name = "Master", RequiredStreak = 20, Color = Color.Success, Severity = Severity.Success },
+            new Level { Name = "Warrior", RequiredStreak = 50, Color = Color.Info, Severity = Severity.Info },
+            new Level { Name = "Legend", RequiredStreak = 100, Color = Color.Primary, Severity = Severity.Info }
+        };
+    }
+
+    private class Level
+    {
+        public string Name { get; set; }
+        public int RequiredStreak { get; set; }
+        public Color Color { get; set; }
+        public Severity Severity { get; set; }
+    }
+}

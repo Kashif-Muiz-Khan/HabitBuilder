@@ -19,27 +19,48 @@
 
     @if (showForm)
     {
+        // Conditional check to render the form only if 'showForm' is true
         <div class="card" style="background-color: rgba(66,66,66,255); color:white; border: none;">
             <div class="card-body">
+                <!-- Dynamically set the title based on whether adding or editing a quote -->
                 <h4 class="card-title align-left" style="color:white;">
                     @(model.Id == 0 ? "Add Quote" : "Edit Quote")
                 </h4>
+
+                <!-- Form for adding/editing quotes with validation -->
                 <EditForm OnValidSubmit="Submit" EditContext="editContext">
+                    <!-- Enables validation based on data annotations -->
                     <DataAnnotationsValidator />
 
                     <div class="row g-3">
+                        <!-- Input field for the quote text -->
                         <div class="col-md-6">
                             <label for="quoteText" class="form-label">Quote Text</label>
-                            <InputText class="form-control" style="background-color: rgba(26,26,39,1); color: white;" placeholder="Enter the quote" @bind-Value="model.QuoteText" />
+                            <InputText class="form-control"
+                                       style="background-color: rgba(26,26,39,1); color: white;"
+                                       placeholder="Enter the quote"
+                                       @bind-Value="model.QuoteText" />
+                            <!-- Displays validation messages for the QuoteText field -->
                             <ValidationMessage For="@(() => model.QuoteText)" />
                         </div>
+
+                        <!-- Input field for the author's name -->
                         <div class="col-md-6">
                             <label for="author" class="form-label">Author</label>
-                            <InputText class="form-control" style="background-color: rgba(26,26,39,1); color: white;" placeholder="Enter the author's name" @bind-Value="model.Author" />
+                            <InputText class="form-control"
+                                       style="background-color: rgba(26,26,39,1); color: white;"
+                                       placeholder="Enter the author's name"
+                                       @bind-Value="model.Author" />
+                            <!-- Displays validation messages for the Author field -->
                             <ValidationMessage For="@(() => model.Author)" />
                         </div>
+
+                        <!-- Submit button for the form -->
                         <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary float-end" style="color: black; background-color:gold; border:none;">
+                            <button type="submit"
+                                    class="btn btn-primary float-end"
+                                    style="color: black; background-color:gold; border:none;">
+                                <!-- Dynamically sets button text based on add/edit mode -->
                                 @(model.Id == 0 ? "Add Quote" : "Save Changes")
                             </button>
                         </div>
@@ -47,9 +68,8 @@
                 </EditForm>
             </div>
         </div>
-
     }
-</div>
+    </div>
 
 <br/>
 <br/>
@@ -271,45 +291,58 @@
 
 
 
-<div>
-    <div class="row g-0">
-        <div class="col-md-12">
-            <button class="btn btn-primary float-end" @onclick="ShowQuoteList">
-                Show Quote List
-            </button>
+    <div>
+        <!-- Row to house the "Show Quote List" button -->
+        <div class="row g-0">
+            <div class="col-md-12">
+                <!-- Button to toggle the visibility of the quote list -->
+                <button class="btn btn-primary float-end" @onclick="ShowQuoteList">
+                    Show Quote List
+                </button>
+            </div>
         </div>
-    </div>
-    @if (showList)
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Quote Text</th>
-                    <th scope="col">Author</th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var quote in quotes)
-                {
+
+        <!-- Conditional rendering: Display the quote list if 'showList' is true -->
+        @if (showList)
+        {
+            <!-- Table to display the list of quotes -->
+            <table class="table">
+                <thead>
                     <tr>
-                        <td>@quote.Id</td>
-                        <td>@quote.QuoteText</td>
-                        <td>@quote.Author</td>
-                        <td>
-                            <button class="btn btn-success" @onclick="() => Edit(quote)">Edit</button>
-                        </td>
-                        <td>
-                            <button class="btn btn-danger" @onclick="() => Delete(quote)">Delete</button>
-                        </td>
+                        <!-- Header row defining the table columns -->
+                        <th scope="col">#</th>
+                        <th scope="col">Quote Text</th>
+                        <th scope="col">Author</th>
+                        <th></th> <!-- Placeholder for Edit action -->
+                        <th></th> <!-- Placeholder for Delete action -->
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
-</div>
+                </thead>
+                <tbody>
+                    <!-- Loop through the list of quotes and display each as a table row -->
+                    @foreach (var quote in quotes)
+                    {
+                        <tr>
+                            <!-- Display the quote's ID -->
+                            <td>@quote.Id</td>
+                            <!-- Display the quote's text -->
+                            <td>@quote.QuoteText</td>
+                            <!-- Display the quote's author -->
+                            <td>@quote.Author</td>
+                            <!-- Button to edit the selected quote -->
+                            <td>
+                                <button class="btn btn-success" @onclick="() => Edit(quote)">Edit</button>
+                            </td>
+                            <!-- Button to delete the selected quote -->
+                            <td>
+                                <button class="btn btn-danger" @onclick="() => Delete(quote)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
 
 
 
